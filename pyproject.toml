@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metadpmf"
+version = "0.1.0"
+description = "Metadynamics PMF workflow for GROMACS + PLUMED"
+requires-python = ">=3.9"
+dependencies = [
+    "pyyaml",
+    "matplotlib",
+    "numpy",
+]
+
+[project.scripts]
+metadpmf = "metadpmf.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["metadpmf*"]
+
+[tool.setuptools.package-data]
+"metadpmf.templates" = ["*.mdp"]

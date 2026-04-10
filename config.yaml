@@ -1,0 +1,84 @@
+# metadpmf configuration file
+# Copy this to your simulation directory and edit for your system.
+
+# -------------------------------------------------------------------
+# Temperature (K)
+# -------------------------------------------------------------------
+temperature: 300.0
+
+# -------------------------------------------------------------------
+# Molecule definition
+# Atom indices (1-based, as in GROMACS/PLUMED) for the centre of
+# each molecule. Used to build WHOLEMOLECULES and CENTER actions.
+# -------------------------------------------------------------------
+molecule:
+  mol1_atoms: [1, 2, 3]    # e.g. three ring beads of molecule 1
+  mol2_atoms: [4, 5, 6]    # e.g. three ring beads of molecule 2
+
+# -------------------------------------------------------------------
+# PLUMED metadynamics parameters
+# -------------------------------------------------------------------
+plumed:
+  pace:        500      # deposit a Gaussian every N MD steps
+  height:      1.0      # Gaussian height (kJ/mol)
+  sigma:       0.05     # Gaussian width (nm)
+  biasfactor:  5        # well-tempered bias factor
+  grid_min:    0.1      # CV grid lower bound (nm)
+  grid_max:    3.0      # CV grid upper bound (nm)
+  grid_bin:    300      # number of grid bins
+  wall_at:     2.0      # upper wall position (nm)
+  wall_kappa:  200.0    # upper wall force constant (kJ/mol/nm^2)
+  print_stride: 5000    # write COLVAR every N steps
+
+# -------------------------------------------------------------------
+# GROMACS MD parameters
+# -------------------------------------------------------------------
+mdp:
+  nsteps:  50000000   # total simulation steps (50M * 0.020 ps = 1 µs)
+  dt:      0.020      # timestep (ps)
+
+# -------------------------------------------------------------------
+# Block FES analysis parameters (metadpmf fes)
+# -------------------------------------------------------------------
+fes:
+  min:       0.2    # grid lower bound for FES histogram (nm)
+  max:       1.7    # grid upper bound for FES histogram (nm)
+  bins:      51     # number of histogram bins
+  block_max: 1000   # scan block sizes range(1, block_max, 10)
+
+# -------------------------------------------------------------------
+# PMF correction (metadpmf pmf)
+# -------------------------------------------------------------------
+pmf:
+  # Distance range (nm) used to define the PMF zero reference.
+  # Should correspond to non-interacting (plateau) region.
+  shift_range: [1.5, 1.7]
+  xrange: null         # x-axis limits in nm, e.g. [0.3, 2.0]; null = auto
+  yrange: null         # y-axis limits in kJ/mol, e.g. [-10, 5]; null = auto
+
+# -------------------------------------------------------------------
+# Input file paths (relative to this config file)
+# -------------------------------------------------------------------
+paths:
+  gro:  start.gro   # equilibrated starting structure
+  top:  system.top            # GROMACS topology
+  mdp:  null                  # null = write metad.mdp from the built-in Martini CG template
+                              # set to a filename to use your own MDP instead
+  traj: metad.xtc             # trajectory written by mdrun (for reweighting)
+
+# -------------------------------------------------------------------
+# Execution backend
+# -------------------------------------------------------------------
+backend: local   # 'local' or 'slurm'
+
+backends:
+  local:
+    gmx:    gmx       # GROMACS executable
+    plumed: plumed    # PLUMED executable
+
+  slurm:
+    gmx:    gmx_mpi
+    plumed: plumed
+    mdrun:  "srun gmx_mpi mdrun"
+    grompp: "srun gmx_mpi grompp"
+    header: slurm_header.sh   # file with #SBATCH lines + module loads
