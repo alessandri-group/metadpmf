@@ -15,10 +15,7 @@
 ## Features
 
 - Single `config.yaml` per simulation
-- PLUMED input files generated automatically from config (atom indices, METAD parameters)
 - Martini 3 `mdp` template included
-- Block FES analysis with convergence diagnostics (`errors.block`)
-- Jacobian correction and PMF plot in one command
 
 ## Installation
 
