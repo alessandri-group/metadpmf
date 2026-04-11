@@ -35,7 +35,7 @@ Set the atom indices of the beads/atoms that define each molecule's centre,
 and the temperature:
 
 ```yaml
-temperature: 300.0
+temperature: 298.15
 
 molecule:
   mol1_atoms: [1, 2, 3]

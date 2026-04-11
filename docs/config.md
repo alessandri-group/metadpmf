@@ -8,7 +8,7 @@ simulation directory and edit.
 ## `temperature`
 
 ```yaml
-temperature: 300.0
+temperature: 298.15
 ```
 
 Simulation temperature in Kelvin. Used in:

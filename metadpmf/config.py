@@ -24,7 +24,7 @@ def load(config_path) -> dict:
 
 
 def _apply_defaults(cfg: dict) -> dict:
-    cfg.setdefault("temperature", 300.0)
+    cfg.setdefault("temperature", 298.15)
 
     cfg.setdefault("molecule", {})
     cfg["molecule"].setdefault("mol1_atoms", [])
