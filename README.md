@@ -59,4 +59,4 @@ mkdocs serve   # → http://127.0.0.1:8000
 ## Credits
 
 - Logo: [Gemini](https://gemini.google.com)
-- Code: [Claude](https://claude.ai)
+- See commit history for contributors, coding assisted by [Claude](https://claude.ai)
