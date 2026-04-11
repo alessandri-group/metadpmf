@@ -11,3 +11,6 @@ site/
 
 # OS
 .DS_Store
+
+# Local notes
+TODO.md
