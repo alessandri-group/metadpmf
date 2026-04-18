@@ -24,4 +24,4 @@ include = ["metadpmf*"]
 "metadpmf.templates" = ["*.mdp"]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+test = ["pytest"]
