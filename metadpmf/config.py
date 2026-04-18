@@ -57,6 +57,16 @@ def _apply_defaults(cfg: dict) -> dict:
     cfg["pmf"].setdefault("shift_range", [1.5, 1.7])
     cfg["pmf"].setdefault("xrange", None)
     cfg["pmf"].setdefault("yrange", None)
+    cfg["pmf"].setdefault("levels_2d", [-10, -7.5, -5, -2.5, 0, 2.5, 5, 7.5, 10])
+
+    cfg.setdefault("cv2", {})
+    cv2 = cfg["cv2"]
+    cv2.setdefault("enabled", False)
+    cv2.setdefault("label", "cos θ")
+    cv2.setdefault("min", -1.0)
+    cv2.setdefault("max", 1.0)
+    cv2.setdefault("bins", 51)
+    cv2.setdefault("plumed_analysis", "plumed_analysis_2d.dat")
 
     cfg.setdefault("paths", {})
     cfg["paths"].setdefault("gro", "start.gro")

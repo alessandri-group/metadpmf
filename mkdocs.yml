@@ -17,6 +17,7 @@ theme:
 nav:
   - Getting started: index.md
   - Tutorial: tutorial.md
+  - Tutorial — 2D FES: tutorial_2d.md
   - Configuration reference: config.md
 
 markdown_extensions:

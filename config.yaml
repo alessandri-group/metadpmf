@@ -54,7 +54,29 @@ pmf:
   # Should correspond to non-interacting (plateau) region.
   shift_range: [1.5, 1.7]
   xrange: null         # x-axis limits in nm, e.g. [0.3, 2.0]; null = auto
-  yrange: null         # y-axis limits in kJ/mol, e.g. [-10, 5]; null = auto
+  yrange: null         # y-axis limits in kJ/mol, e.g. [-10, 5]; null = auto (1D plot only)
+                       # for the 2D plot y-axis, adjust cv2.min / cv2.max instead
+  # 2D plot contour levels (kJ/mol) — only used when cv2.enabled: true
+  levels_2d: [-10, -7.5, -5, -2.5, 0, 2.5, 5, 7.5, 10]
+
+# -------------------------------------------------------------------
+# Second CV for 2D FES projection (optional)
+# Enable this to compute a 2D free-energy surface: the bias acts on
+# distance (CV1) only, and CV2 is an unbiased order parameter tracked
+# in the trajectory (e.g. ring orientation via PLANES + POLYMER_ANGLES).
+# -------------------------------------------------------------------
+cv2:
+  enabled: false
+  label:   "cos θ"        # y-axis label in the 2D PMF plot
+  min:    -1.0            # CV2 grid lower bound
+  max:     1.0            # CV2 grid upper bound
+  bins:    51             # number of CV2 histogram bins
+  # User-provided PLUMED input for reweighting (relative to config.yaml).
+  # Must define CV2 and print:
+  #   PRINT STRIDE=1 ARG=dist,<cv2>,metad.bias FILE=COLVAR
+  # See the 2D FES tutorial for a ready-to-use template (cosine of the angle
+  # between ring plane normals, computed via DISTANCE COMPONENTS + CUSTOM).
+  plumed_analysis: plumed_analysis_2d.dat
 
 # -------------------------------------------------------------------
 # Input file paths (relative to this config file)
