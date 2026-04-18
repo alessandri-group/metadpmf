@@ -22,3 +22,6 @@ include = ["metadpmf*"]
 
 [tool.setuptools.package-data]
 "metadpmf.templates" = ["*.mdp"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
