@@ -138,10 +138,13 @@ def backend_cmds(cfg: dict) -> dict:
         }
     else:
         be = cfg["backends"]["slurm"]
+        gmx = be.get("gmx", "gmx_mpi")
         return {
-            "gmx":    be.get("gmx", "gmx_mpi"),
+            "gmx":    gmx,
             "plumed": be.get("plumed", "plumed"),
             "gmxrc":  be.get("gmxrc"),
+            "mdrun":  be.get("mdrun", f"{gmx} mdrun"),
+            "grompp": be.get("grompp", f"{gmx} grompp"),
         }
 
 
