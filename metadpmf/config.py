@@ -101,6 +101,28 @@ def _validate(cfg: dict) -> None:
         if not header:
             errors.append("backends.slurm.header is required when backend=slurm")
 
+    fes      = cfg.get("fes", {})
+    pmf      = cfg.get("pmf", {})
+    p        = cfg.get("plumed", {})
+    fes_min  = fes.get("min", 0.2)
+    fes_max  = fes.get("max", 1.7)
+    wall_at  = p.get("wall_at", 2.0)
+    sr       = pmf.get("shift_range", [1.5, 1.7])
+
+    if fes_max > wall_at:
+        errors.append(
+            f"fes.max ({fes_max}) > plumed.wall_at ({wall_at}): "
+            "the FES histogram extends beyond the upper wall where sampling is suppressed"
+        )
+    if sr[0] < fes_min or sr[1] > fes_max:
+        errors.append(
+            f"pmf.shift_range {sr} must lie within [fes.min, fes.max] = [{fes_min}, {fes_max}]"
+        )
+    if sr[0] >= sr[1]:
+        errors.append(
+            f"pmf.shift_range {sr}: first value must be less than second"
+        )
+
     if errors:
         raise ValueError("Config errors:\n" + "\n".join(f"  - {e}" for e in errors))
 

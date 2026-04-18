@@ -1,6 +1,8 @@
 """Tests for metadpmf.config — no GROMACS/PLUMED required."""
 
-from metadpmf.config import _apply_defaults, kbt, R, render_plumed, render_plumed_analysis
+import pytest
+
+from metadpmf.config import _apply_defaults, _validate, kbt, R, render_plumed, render_plumed_analysis
 
 
 def _cfg(**overrides):
@@ -92,3 +94,49 @@ def test_render_plumed_analysis_restart():
     assert "RESTART" in text
     assert "PACE=1000000000" in text
     assert "STRIDE=1" in text
+
+
+# ---------------------------------------------------------------------------
+# Validation — CV range consistency
+# ---------------------------------------------------------------------------
+
+def _valid_cfg(**overrides):
+    """Minimal valid config (molecules required for _validate to pass)."""
+    base = {
+        "molecule": {"mol1_atoms": [1, 2], "mol2_atoms": [3, 4]},
+    }
+    base.update(overrides)
+    return _apply_defaults(base)
+
+
+def test_validate_ok():
+    """Default config should pass validation without errors."""
+    _validate(_valid_cfg())
+
+
+def test_validate_fes_max_exceeds_wall():
+    cfg = _valid_cfg()
+    cfg["fes"]["max"] = 2.5          # > wall_at default of 2.0
+    with pytest.raises(ValueError, match="fes.max"):
+        _validate(cfg)
+
+
+def test_validate_shift_range_above_fes_max():
+    cfg = _valid_cfg()
+    cfg["pmf"]["shift_range"] = [1.8, 2.0]  # 2.0 > fes.max default of 1.7
+    with pytest.raises(ValueError, match="shift_range"):
+        _validate(cfg)
+
+
+def test_validate_shift_range_below_fes_min():
+    cfg = _valid_cfg()
+    cfg["pmf"]["shift_range"] = [0.1, 0.15]  # 0.1 < fes.min default of 0.2
+    with pytest.raises(ValueError, match="shift_range"):
+        _validate(cfg)
+
+
+def test_validate_shift_range_inverted():
+    cfg = _valid_cfg()
+    cfg["pmf"]["shift_range"] = [1.6, 1.5]
+    with pytest.raises(ValueError, match="shift_range"):
+        _validate(cfg)
