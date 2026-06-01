@@ -44,7 +44,10 @@ metadpmf pmf
 
 ## Documentation
 
-Build and serve locally:
+Full documentation is hosted at
+**<https://alessandri-group.github.io/metadpmf/>**.
+
+To build and serve it locally:
 
 ```bash
 pip install mkdocs mkdocs-material
