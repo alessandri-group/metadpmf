@@ -7,6 +7,15 @@
 temperature: 298.15
 
 # -------------------------------------------------------------------
+# Force field (REQUIRED) — selects the built-in production MDP template.
+#   martini : Martini CG  (dt 20 fs, reaction-field electrostatics)
+#   opls    : OPLS-AA      (dt  2 fs, PME, h-bond constraints)
+# No default: you must set this to 'martini' or 'opls'.
+# The dt default follows this choice automatically; override under mdp: if needed.
+# -------------------------------------------------------------------
+forcefield: martini
+
+# -------------------------------------------------------------------
 # Molecule definition
 # Atom indices (1-based, as in GROMACS/PLUMED) for the centre of
 # each molecule. Used to build WHOLEMOLECULES and CENTER actions.
@@ -34,8 +43,8 @@ plumed:
 # GROMACS MD parameters
 # -------------------------------------------------------------------
 mdp:
-  nsteps:  50000000   # total simulation steps (50M * 0.020 ps = 1 µs)
-  dt:      0.020      # timestep (ps)
+  nsteps:  50000000   # total simulation steps (50M steps = 1 µs Martini / 100 ns OPLS)
+  # dt:    0.020      # timestep (ps); default follows forcefield (0.020 martini / 0.002 opls)
 
 # -------------------------------------------------------------------
 # Block FES analysis parameters (metadpmf fes)
@@ -84,7 +93,7 @@ cv2:
 paths:
   gro:  start.gro   # equilibrated starting structure
   top:  system.top            # GROMACS topology
-  mdp:  null                  # null = write metad.mdp from the built-in Martini CG template
+  mdp:  null                  # null = write metad.mdp from the built-in template (see forcefield)
                               # set to a filename to use your own MDP instead
   traj: metad.xtc             # trajectory written by mdrun (for reweighting)
 

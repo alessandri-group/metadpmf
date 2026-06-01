@@ -43,9 +43,14 @@ def _apply_defaults(cfg: dict) -> dict:
     p.setdefault("wall_kappa", 200.0)
     p.setdefault("print_stride", 5000)
 
+    # forcefield is required (no default) — validated in _validate.
+    # dt default is forcefield-aware: Martini CG runs at 20 fs, OPLS-AA at 2 fs.
+    # nsteps stays 50M for both → 1 us (Martini) vs 100 ns (OPLS), sensible per method.
+    _dt_default = {"martini": 0.020, "opls": 0.002}.get(cfg.get("forcefield"))
     cfg.setdefault("mdp", {})
     cfg["mdp"].setdefault("nsteps", 50000000)
-    cfg["mdp"].setdefault("dt", 0.020)
+    if _dt_default is not None:
+        cfg["mdp"].setdefault("dt", _dt_default)
 
     cfg.setdefault("fes", {})
     cfg["fes"].setdefault("min", 0.2)
@@ -92,6 +97,12 @@ def _validate(cfg: dict) -> None:
         errors.append("molecule.mol1_atoms is required and must not be empty")
     if not mol.get("mol2_atoms"):
         errors.append("molecule.mol2_atoms is required and must not be empty")
+
+    ff = cfg.get("forcefield")
+    if ff is None:
+        errors.append("forcefield is required: set it to 'martini' or 'opls'")
+    elif ff not in ("martini", "opls"):
+        errors.append(f"forcefield '{ff}' is not known: must be 'martini' or 'opls'")
 
     backend = cfg.get("backend", "local")
     if backend not in ("local", "slurm"):
@@ -246,7 +257,7 @@ def render_mdp(cfg: dict) -> str:
     if mdp_path is not None:
         return Path(cfg["_dir"] / mdp_path).read_text()
 
-    template = (TEMPLATES_DIR / "md.mdp").read_text()
+    template = (TEMPLATES_DIR / f"md_{cfg['forcefield']}.mdp").read_text()
     replacements = {
         "NSTEPS": str(cfg["mdp"]["nsteps"]),
         "TEMP":   str(cfg["temperature"]),

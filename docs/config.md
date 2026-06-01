@@ -20,6 +20,27 @@ Simulation temperature in Kelvin. Used in:
 
 ---
 
+## `forcefield`
+
+```yaml
+forcefield: martini   # 'martini' or 'opls' — REQUIRED, no default
+```
+
+Required — there is no default, so you must set it to `martini` or `opls`
+(any other value is rejected). Selects the built-in production MDP template
+written by `metadpmf run`:
+
+| Value | Template | Timestep | Electrostatics | Constraints |
+|---|---|---|---|---|
+| `martini` | `md_martini.mdp` | 20 fs | reaction-field | none |
+| `opls` | `md_opls.mdp` | 2 fs | PME | h-bonds |
+
+The `mdp.dt` default follows this choice automatically (0.020 for Martini,
+0.002 for OPLS). Override it under `mdp:` if you need a different timestep.
+Ignored if you supply your own MDP via `paths.mdp`.
+
+---
+
 ## `molecule`
 
 ```yaml
@@ -76,11 +97,14 @@ plumed:
 ```yaml
 mdp:
   nsteps: 50000000
-  dt:     0.020
+  # dt:   0.020   # default follows forcefield (0.020 martini / 0.002 opls)
 ```
 
-Applied to the built-in Martini CG MDP template. If you supply your own MDP
-via `paths.mdp`, these keys are ignored.
+Applied to the built-in MDP template selected by `forcefield`. `dt` defaults
+to the forcefield-appropriate value but can be overridden here. If you supply
+your own MDP via `paths.mdp`, these keys are ignored.
+
+`nsteps` is 50M by default: 1 µs for Martini (20 fs) or 100 ns for OPLS (2 fs).
 
 ---
 
@@ -137,7 +161,7 @@ All paths are relative to the config file location.
 |---|---|
 | `gro` | Equilibrated starting structure |
 | `top` | GROMACS topology |
-| `mdp` | Custom MDP file; `null` = use built-in Martini CG template |
+| `mdp` | Custom MDP file; `null` = use built-in template selected by `forcefield` |
 | `traj` | Trajectory filename produced by mdrun (default `metad.xtc`) |
 
 ---

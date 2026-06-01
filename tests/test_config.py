@@ -2,7 +2,7 @@
 
 import pytest
 
-from metadpmf.config import _apply_defaults, _validate, kbt, R, render_plumed, render_plumed_analysis
+from metadpmf.config import _apply_defaults, _validate, kbt, R, render_plumed, render_plumed_analysis, render_mdp
 
 
 def _cfg(**overrides):
@@ -101,9 +101,10 @@ def test_render_plumed_analysis_restart():
 # ---------------------------------------------------------------------------
 
 def _valid_cfg(**overrides):
-    """Minimal valid config (molecules required for _validate to pass)."""
+    """Minimal valid config (molecule + forcefield required for _validate to pass)."""
     base = {
         "molecule": {"mol1_atoms": [1, 2], "mol2_atoms": [3, 4]},
+        "forcefield": "martini",
     }
     base.update(overrides)
     return _apply_defaults(base)
@@ -140,3 +141,63 @@ def test_validate_shift_range_inverted():
     cfg["pmf"]["shift_range"] = [1.6, 1.5]
     with pytest.raises(ValueError, match="shift_range"):
         _validate(cfg)
+
+
+def test_validate_bad_forcefield():
+    cfg = _valid_cfg()
+    cfg["forcefield"] = "amber"
+    with pytest.raises(ValueError, match="not known"):
+        _validate(cfg)
+
+
+def test_validate_missing_forcefield():
+    cfg = _valid_cfg()
+    del cfg["forcefield"]
+    with pytest.raises(ValueError, match="forcefield is required"):
+        _validate(cfg)
+
+
+# ---------------------------------------------------------------------------
+# Force field selection — dt default and MDP template
+# ---------------------------------------------------------------------------
+
+def test_forcefield_has_no_default():
+    """forcefield is required; _apply_defaults must not invent one."""
+    assert "forcefield" not in _apply_defaults({})
+
+
+def test_dt_default_martini():
+    assert _apply_defaults({"forcefield": "martini"})["mdp"]["dt"] == 0.020
+
+
+def test_dt_default_opls():
+    assert _apply_defaults({"forcefield": "opls"})["mdp"]["dt"] == 0.002
+
+
+def test_dt_unset_when_forcefield_missing():
+    """No forcefield → no dt default (validation will reject the config)."""
+    assert "dt" not in _apply_defaults({})["mdp"]
+
+
+def test_dt_explicit_override_wins():
+    cfg = _apply_defaults({"forcefield": "opls", "mdp": {"dt": 0.001}})
+    assert cfg["mdp"]["dt"] == 0.001
+
+
+def test_render_mdp_martini_reaction_field():
+    text = render_mdp(_cfg(forcefield="martini"))
+    assert "reaction-field" in text
+    assert "dt                       = 0.02" in text
+
+
+def test_render_mdp_opls_pme():
+    text = render_mdp(_cfg(forcefield="opls"))
+    assert "coulombtype              = PME" in text
+    assert "constraints              = h-bonds" in text
+    assert "dt                       = 0.002" in text
+
+
+def test_render_mdp_substitutes_temperature():
+    text = render_mdp(_cfg(forcefield="martini", temperature=310.0))
+    assert "310.0" in text
+    assert "TEMP" not in text
