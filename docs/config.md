@@ -90,6 +90,45 @@ plumed:
 | `wall_kappa` | Upper wall force constant (kJ/mol/nm²) |
 | `print_stride` | Write COLVAR every N steps |
 
+### How the grid, wall, and FES ranges relate
+
+Three distance ranges appear in the config, and they must be nested correctly:
+
+- **METAD grid** (`grid_min`, `grid_max`, `grid_bin`) — PLUMED stores the
+  accumulated bias on this grid instead of re-summing every hill each step. The
+  CV must *never* leave the grid: if the distance exceeds `grid_max`, PLUMED
+  errors out. The grid is therefore the **widest** of the ranges.
+- **Upper wall** (`wall_at`, `wall_kappa`) — a harmonic restraint that pushes
+  the molecules back once they pass `wall_at`. It is needed because at large
+  separation the PMF is flat: nothing pulls the molecules back, and
+  metadynamics would otherwise keep filling the basin and drive them apart
+  indefinitely (and off the grid). The wall caps the explorable range.
+- **FES histogram** (`fes.min`, `fes.max`) — the range you actually analyse. It
+  must stay *inside* the wall, because near and beyond the wall the sampling is
+  distorted by the wall potential and the PMF there is contaminated.
+
+The required ordering is:
+
+```
+grid_min ≤ fes.min  <  fes.max  ≤  wall_at  <  grid_max
+   0.1      0.2          1.7        2.0        3.0
+```
+
+`metadpmf` validates `fes.max ≤ wall_at` and that `pmf.shift_range` lies within
+`[fes.min, fes.max]`.
+
+**Choosing `wall_at` for your box.** Under the minimum-image convention a
+centre-of-mass distance is only meaningful up to **half the shortest box edge**
+(`L/2`); beyond that a molecule starts seeing periodic images of its partner.
+Place the wall *below* `L/2` with margin, because both the soft-wall
+fluctuations (the CV strays ~0.2–0.3 nm above `wall_at` before being pushed
+back) and the grid headroom (`grid_max > wall_at`) must still fit under `L/2`.
+For a cubic box of edge 5.15 nm (`L/2 ≈ 2.58`), a wall around 2.2 nm with
+`grid_max ≈ 2.5` is a safe choice. Below `wall_at` the wall potential is
+exactly zero, so the FES is energetically clean up to the wall — but expect
+poorer statistics (larger error bars) in the ~0.1 nm just below it as sampling
+density drops.
+
 ---
 
 ## `mdp`
