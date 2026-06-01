@@ -6,12 +6,12 @@
 
 **metadpmf** is a Python package for running and analysing well-tempered
 metadynamics simulations in GROMACS + PLUMED to compute potentials of mean
-force (PMFs) along a 1D collective variable (the centre-of-mass distance
-between two molecules).
+force (PMFs) along the centre-of-mass distance between two molecules.
 
-It targets coarse-grained Martini systems and generates ready-to-run shell
-scripts rather than running simulations directly, so you remain in control of
-submission.
+It supports both coarse-grained Martini and atomistic OPLS-AA systems, offers
+optional projection onto a second collective variable for a 2D free-energy
+surface, and generates ready-to-run shell scripts rather than running
+simulations directly, so you remain in control of submission.
 
 ---
 
@@ -29,7 +29,7 @@ submission.
 Clone the repository and install in editable mode:
 
 ```bash
-git clone <repo-url> metadpmf
+git clone https://github.com/alessandri-group/metadpmf.git
 cd metadpmf
 pip install -e .
 ```

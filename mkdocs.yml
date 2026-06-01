@@ -1,6 +1,7 @@
 site_name: metadpmf
 site_description: Metadynamics PMF workflow for GROMACS + PLUMED
-repo_url: ""
+site_url: https://alessandri-group.github.io/metadpmf/
+repo_url: https://github.com/alessandri-group/metadpmf
 
 theme:
   name: material

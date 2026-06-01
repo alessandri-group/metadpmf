@@ -21,7 +21,7 @@
 ## Installation
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/alessandri-group/metadpmf.git
 cd metadpmf
 pip install -e .
 ```
@@ -61,3 +61,7 @@ mkdocs serve   # → http://127.0.0.1:8000
 
 - Logo: [Gemini](https://gemini.google.com)
 - See commit history for contributors, coding assisted by [Claude](https://claude.ai)
+
+## License
+
+[MIT](LICENSE)
