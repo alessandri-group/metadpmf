@@ -39,6 +39,10 @@ def test_pmf_defaults():
 def test_cv2_defaults():
     cfg = _apply_defaults({})
     assert cfg["cv2"]["enabled"] is False
+    assert cfg["cv2"]["type"] == "costheta"
+    assert cfg["cv2"]["bias"] is False
+    assert cfg["cv2"]["fold"] == "none"
+    assert cfg["cv2"]["sigma"] == 0.1
     assert cfg["cv2"]["min"] == -1.0
     assert cfg["cv2"]["max"] == 1.0
     assert cfg["cv2"]["bins"] == 51
@@ -201,3 +205,83 @@ def test_render_mdp_substitutes_temperature():
     text = render_mdp(_cfg(forcefield="martini", temperature=310.0))
     assert "310.0" in text
     assert "TEMP" not in text
+
+
+# ---------------------------------------------------------------------------
+# Second CV (cosθ) — three modes
+# ---------------------------------------------------------------------------
+
+def _cv2_cfg(**cv2):
+    base = {"enabled": True}
+    base.update(cv2)
+    return _cfg(forcefield="martini", cv2=base)
+
+
+def test_cv2_plane_defaults():
+    """Plane atoms default to the molecule's centre atoms iff there are 3."""
+    assert _cfg()["cv2"]["mol1_plane"] == [1, 2, 3]   # 3-bead molecule
+    four = _apply_defaults({"molecule": {"mol1_atoms": [1, 2, 3, 4], "mol2_atoms": [5, 6, 7, 8]}})
+    assert four["cv2"]["mol1_plane"] is None           # not 3 → no default
+
+
+def test_mode_b_production_stays_1d():
+    """Projection mode must not touch the production run (bias on distance only)."""
+    text = render_plumed(_cv2_cfg(bias=False))
+    assert "METAD ARG=dist " in text
+    assert "costheta" not in text
+
+
+def test_mode_b_analysis_projects_costheta_unbiased():
+    text = render_plumed_analysis(_cv2_cfg(bias=False))
+    assert "costheta: CUSTOM" in text
+    assert "d12: DISTANCE ATOMS=1,2 COMPONENTS" in text
+    assert "METAD ARG=dist " in text                   # 1D bias
+    assert "ARG=dist,costheta,metad.bias" in text       # 4-column COLVAR
+
+
+def test_mode_c_production_biases_two_cvs():
+    """Order matters: distance first, cv2 second, in every 2-valued field."""
+    text = render_plumed(_cv2_cfg(bias=True))
+    assert "costheta: CUSTOM" in text
+    assert "METAD ARG=dist,costheta" in text
+    assert "SIGMA=0.05,0.1" in text
+    assert "GRID_MIN=0.1,-1.0" in text
+    assert "GRID_MAX=3.0,1.0" in text
+    assert "GRID_BIN=300,51" in text
+
+
+def test_mode_c_analysis_biases_two_cvs():
+    text = render_plumed_analysis(_cv2_cfg(bias=True))
+    assert "METAD ARG=dist,costheta" in text
+    assert "ARG=dist,costheta,metad.bias" in text
+
+
+def test_cv2_fold_changes_biased_variable():
+    abs_text = render_plumed(_cv2_cfg(bias=True, fold="abs", min=0.0))
+    assert "cv2f: CUSTOM ARG=costheta VAR=a FUNC=abs(a)" in abs_text
+    assert "METAD ARG=dist,cv2f" in abs_text
+    sq_text = render_plumed(_cv2_cfg(bias=True, fold="sq", min=0.0))
+    assert "cv2f: CUSTOM ARG=costheta VAR=a FUNC=a*a" in sq_text
+
+
+def test_cv2_custom_type_skips_generator():
+    """type: custom must not inject the cosθ block (user supplies the file)."""
+    text = render_plumed_analysis(_cv2_cfg(type="custom"))
+    assert "costheta" not in text
+    assert "ARG=dist,metad.bias" in text
+
+
+def test_validate_cv2_bad_type():
+    with pytest.raises(ValueError, match="cv2.type"):
+        _validate(_cv2_cfg(type="foo"))
+
+
+def test_validate_cv2_plane_missing():
+    """The main footgun: type=costheta with a molecule that isn't 3 atoms."""
+    cfg = _apply_defaults({
+        "molecule": {"mol1_atoms": [1, 2, 3, 4], "mol2_atoms": [5, 6, 7, 8]},
+        "forcefield": "martini",
+        "cv2": {"enabled": True},
+    })
+    with pytest.raises(ValueError, match="mol1_plane"):
+        _validate(cfg)

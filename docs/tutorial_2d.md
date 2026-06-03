@@ -1,125 +1,82 @@
 # Tutorial: 2D free-energy surface
 
-This tutorial extends the [standard 1D workflow](tutorial.md) to produce a
-**2D free-energy surface** by projecting the trajectory onto a second,
-unbiased collective variable (CV2).
+This tutorial extends the [standard 1D workflow](tutorial.md) to a **2D
+free-energy surface**, adding an orientational second collective variable
+(CV2) on top of the centre-of-mass distance.
 
-The metadynamics bias still acts on the centre-of-mass distance $r$ (CV1)
-only. CV2 is a structural order parameter that is tracked during the
-simulation but not biased — for example, the cosine of the angle between the
-normal vectors of two ring molecules, which captures their relative
-orientation. Because the reweighting weights depend only on the bias, the 2D
-FES is obtained by binning frames simultaneously in both CV1 and CV2.
+CV2 is the cosine of the angle between the two ring-plane normals — it
+distinguishes stacked/parallel arrangements (`cosθ ≈ ±1`) from T-shaped ones
+(`cosθ ≈ 0`). `metadpmf` builds the (somewhat convoluted) PLUMED for it
+automatically from the ring atoms; you only choose the atoms and the mode.
 
 ---
 
-## Prerequisites
+## Three modes
 
-Complete steps 0–3 of the [standard tutorial](tutorial.md): run the
-metadynamics simulation and produce `metad.xtc` and `HILLS`. The production
-run is identical; the only differences come in the analysis steps.
+The metadynamics bias always acts on the distance. CV2 is added in one of two
+ways, selected by `enabled` + `bias`:
+
+| Mode | `cv2.enabled` | `cv2.bias` | Bias acts on | Use when |
+|---|---|---|---|---|
+| **A** | `false` | — | distance | 1D PMF (the [standard tutorial](tutorial.md)) |
+| **B** — project | `true` | `false` | distance | CV2 explores freely on its own; you just want to *see* it |
+| **C** — bias both | `true` | `true` | distance + CV2 | CV2 does not sample well unbiased (common for atomistic systems) |
+
+The analysis (reweighting, block FES, Jacobian, plot) is identical for B and C;
+only the PLUMED inputs differ. This tutorial covers **B and C** — the only
+config difference between them is the `bias` flag.
 
 ---
 
-## 1. Enable CV2 in config.yaml
-
-Add the `cv2` block to your `config.yaml`:
+## 1. Enable CV2 in `config.yaml`
 
 ```yaml
 cv2:
   enabled: true
-  label:   "cos θ"        # y-axis label in the 2D PMF plot
-  min:    -1.0            # CV2 grid lower bound
-  max:     1.0            # CV2 grid upper bound
-  bins:    51             # number of CV2 histogram bins
-  plumed_analysis: plumed_analysis_2d.dat
+  type:    costheta      # built-in cosθ generator
+  bias:    false         # false → Mode B (project); true → Mode C (bias both)
+  sigma:   0.1           # metad width on cosθ (only used in Mode C)
+  label:   "cos θ"
+  min:    -1.0
+  max:     1.0
+  bins:    51
+  # mol1_plane: [1, 2, 3]   # 3 atoms defining each ring plane;
+  # mol2_plane: [4, 5, 6]   # default to molecule.mol*_atoms when those have 3
 ```
 
-`label`, `min`, `max`, and `bins` describe your CV2. For the ring-orientation
-example below, $\cos\theta$ ranges from −1 (perpendicular planes) to +1
-(parallel/anti-parallel planes).
+For a 3-bead Martini ring the plane atoms are just the molecule's centre atoms,
+so `mol1_plane`/`mol2_plane` can be omitted. For atomistic rings, give three
+non-collinear atoms of each ring explicitly.
+
+The cosθ normal of each ring is the cross product of two edge vectors built from
+those three atoms, so atom **order matters** only in that it must be consistent
+between runs (it is, since it comes from the same config).
 
 ---
 
-## 2. Write plumed_analysis_2d.dat
+## 2. Run the production simulation
 
-Unlike the 1D case — where `metadpmf reweight` generates the PLUMED input
-automatically — the 2D case requires you to provide the PLUMED file yourself,
-because the definition of CV2 is system-specific.
-
-Place `plumed_analysis_2d.dat` in your simulation directory (next to
-`config.yaml`). Below is a template for two 3-bead ring molecules where CV2
-is $\cos\theta$, the cosine of the angle between the two plane normals. It
-uses only standard PLUMED actions (`DISTANCE COMPONENTS` + `CUSTOM`) and does
-not require any optional modules.
-
-The plane normal for each molecule is computed as the cross product of two
-edge vectors: for molecule 1, $\mathbf{n}_1 = \overrightarrow{12} \times
-\overrightarrow{23}$, and similarly for molecule 2.
-
-```plumed
-RESTART
-
-WHOLEMOLECULES ENTITY0=1,2,3 ENTITY1=4,5,6
-
-c1:   CENTER ATOMS=1,2,3
-c2:   CENTER ATOMS=4,5,6
-dist: DISTANCE ATOMS=c1,c2
-
-# edge vectors within each ring
-d12: DISTANCE ATOMS=1,2 COMPONENTS
-d23: DISTANCE ATOMS=2,3 COMPONENTS
-d45: DISTANCE ATOMS=4,5 COMPONENTS
-d56: DISTANCE ATOMS=5,6 COMPONENTS
-
-# normal to ring 1: n1 = d12 x d23
-n1x: CUSTOM ARG=d12.y,d12.z,d23.y,d23.z VAR=a,b,c,d FUNC=a*d-b*c PERIODIC=NO
-n1y: CUSTOM ARG=d12.z,d12.x,d23.z,d23.x VAR=a,b,c,d FUNC=a*d-b*c PERIODIC=NO
-n1z: CUSTOM ARG=d12.x,d12.y,d23.x,d23.y VAR=a,b,c,d FUNC=a*d-b*c PERIODIC=NO
-
-# normal to ring 2: n2 = d45 x d56
-n2x: CUSTOM ARG=d45.y,d45.z,d56.y,d56.z VAR=a,b,c,d FUNC=a*d-b*c PERIODIC=NO
-n2y: CUSTOM ARG=d45.z,d45.x,d56.z,d56.x VAR=a,b,c,d FUNC=a*d-b*c PERIODIC=NO
-n2z: CUSTOM ARG=d45.x,d45.y,d56.x,d56.y VAR=a,b,c,d FUNC=a*d-b*c PERIODIC=NO
-
-# cos(theta) = (n1 . n2) / (|n1| |n2|),  range [-1, 1]
-costheta: CUSTOM ARG=n1x,n1y,n1z,n2x,n2y,n2z VAR=a,b,c,d,f,g FUNC=(a*d+b*f+c*g)/sqrt((a^2+b^2+c^2)*(d^2+f^2+g^2)) PERIODIC=NO
-
-uwall: UPPER_WALLS ARG=dist AT=2.0 KAPPA=200.0
-
-metad: METAD ARG=dist PACE=1000000000 HEIGHT=1.0 SIGMA=0.05 FILE=HILLS BIASFACTOR=5 GRID_MIN=0.1 GRID_MAX=3.0 TEMP=298.15 GRID_BIN=300
-
-PRINT STRIDE=1 ARG=dist,costheta,metad.bias FILE=COLVAR
+```bash
+metadpmf run && bash run_metad.sh
 ```
 
-Key requirements for the `PRINT` line:
-
-- Column order must be `dist, <cv2>, metad.bias` (bias last).
-- `STRIDE=1` so every frame is written.
-- `FILE=COLVAR` (the name `metadpmf fes` expects).
-
-Adjust atom indices, METAD parameters, and `UPPER_WALLS` to match your
-production `plumed.dat` exactly.
-
-!!! tip "Verify against your plumed.dat"
-    The `METAD` block must use the same `BIASFACTOR`, `TEMP`, `SIGMA`, and
-    `FILE=HILLS` as the production run, otherwise the reconstructed bias will
-    be incorrect.
+- **Mode B:** `plumed.dat` is identical to the 1D case — the bias is on distance
+  only. cosθ is reconstructed later from the trajectory.
+- **Mode C:** `plumed.dat` includes the generated cosθ block and a 2D
+  `METAD ARG=dist,costheta` with per-CV `SIGMA` and grid. cosθ is biased.
 
 ---
 
 ## 3. Reweight the trajectory
 
 ```bash
-metadpmf reweight
+metadpmf reweight && bash reweight.sh
 ```
 
-Because `cv2.enabled: true`, metadpmf creates `analysis_2d/` and copies your
-`plumed_analysis_2d.dat` into `analysis_2d/plumed_analysis.dat`.
-
-```bash
-bash reweight.sh
-```
+Because `cv2.enabled: true`, metadpmf creates `analysis_2d/` and **generates**
+`analysis_2d/plumed_analysis.dat` from your config (no hand-written PLUMED). The
+METAD in it mirrors the production run — 1D in Mode B, 2D in Mode C — so the
+bias is reconstructed correctly in both cases.
 
 Produces `analysis_2d/COLVAR` with **four** columns: `time  dist  cv2  bias`.
 
@@ -131,8 +88,8 @@ Produces `analysis_2d/COLVAR` with **four** columns: `time  dist  cv2  bias`.
 metadpmf fes
 ```
 
-Reads the four-column `analysis_2d/COLVAR`, computes reweighting weights, and
-runs the block analysis over the 2D grid simultaneously in CV1 and CV2.
+Reads the four-column `analysis_2d/COLVAR`, computes reweighting weights
+`exp((bias − bias_max)/k_BT)`, and runs the block analysis over the 2D grid.
 
 Output in `analysis_2d/`:
 
@@ -143,8 +100,8 @@ Output in `analysis_2d/`:
 | `fes.dat` | 2D FES from the largest block size (4 columns: cv1, cv2, fes, error) |
 | `blocks/fes.{N}.dat` | 2D FES for every block size N |
 
-`fes.dat` follows the gnuplot convention: rows are grouped by CV2 value,
-with blank lines between groups and CV1 varying within each group.
+`fes.dat` follows the gnuplot convention: rows grouped by CV2 value, blank lines
+between groups, CV1 varying within each group.
 
 ---
 
@@ -154,14 +111,13 @@ with blank lines between groups and CV1 varying within each group.
 metadpmf pmf
 ```
 
-The Jacobian correction is applied on the **CV1 (distance) axis only**,
-because the geometric sampling bias arises from the spherical volume element
-in $r$:
+The Jacobian correction is applied on the **CV1 (distance) axis only**, because
+the geometric sampling bias arises from the spherical volume element in $r$:
 
 $$\Delta G(r, \text{CV2}) = \text{FES}(r, \text{CV2}) + 2RT\ln(r)$$
 
-The corrected surface is then shifted to zero by subtracting the mean value
-over `pmf.shift_range` (default 1.5–1.7 nm) averaged across **all CV2 bins**.
+The corrected surface is shifted to zero by subtracting the mean over
+`pmf.shift_range` (default 1.5–1.7 nm) averaged across **all CV2 bins**.
 
 Output in `analysis_2d/`:
 
@@ -170,14 +126,57 @@ Output in `analysis_2d/`:
 | `fes_2d_corr.dat` | Jacobian-corrected and shifted 2D FES (cv1, cv2, ΔG) |
 | `pmf_2d.pdf` | Filled contour plot with coolwarm colormap |
 
-The contour levels can be adjusted in `config.yaml`:
+Contour levels and axis limits are set in `config.yaml`:
 
 ```yaml
 pmf:
   levels_2d: [-10, -7.5, -5, -2.5, 0, 2.5, 5, 7.5, 10]
-  xrange: [0.2, 1.7]   # optional axis limits
+  xrange: [0.2, 1.7]
   yrange: [-1.0, 1.0]
 ```
+
+---
+
+## cosθ sign degeneracy (`fold`)
+
+`cosθ = +1` and `cosθ = -1` both mean the ring planes are parallel — the sign
+only reflects which face each normal points from. For a **planar** molecule the
+two faces are equivalent (this holds even for in-plane-asymmetric molecules such
+as phenol), so the two halves of the cosθ axis are physically redundant.
+
+- Keep `fold: none` (default) for projection (Mode B): a converged FES should be
+  symmetric about 0, which is a useful sanity check.
+- Set `fold: abs` (→ |cosθ|) or `fold: sq` (→ cos²θ) when **biasing** a planar
+  molecule (Mode C) to avoid filling two equivalent regions; also set `min: 0.0`.
+- Do **not** fold a molecule whose two faces genuinely differ (non-planar, or
+  different substituents above/below the ring): there `+1` and `-1` are distinct
+  states.
+
+---
+
+## Advanced: a custom CV2 (`type: custom`)
+
+If you want a different second CV (not cosθ), set `type: custom` and write the
+analysis PLUMED yourself:
+
+```yaml
+cv2:
+  enabled: true
+  type:    custom
+  plumed_analysis: plumed_analysis_2d.dat
+```
+
+`metadpmf reweight` then copies your file into `analysis_2d/plumed_analysis.dat`
+instead of generating it. The file must define your CV2 and print the four
+columns in order:
+
+```
+PRINT STRIDE=1 ARG=dist,<your_cv2>,metad.bias FILE=COLVAR
+```
+
+with `STRIDE=1` and a METAD block matching your production run (same
+`BIASFACTOR`, `TEMP`, `SIGMA`, `FILE=HILLS`). This is the escape hatch; for ring
+orientation the built-in `type: costheta` is the easy path.
 
 ---
 
@@ -194,10 +193,9 @@ MOL_in_SOLVENT/
 ├── metad.tpr / metad.xtc / metad.log
 ├── HILLS
 ├── COLVAR
-├── plumed_analysis_2d.dat    ← written by you
 ├── reweight.sh
 └── analysis_2d/
-    ├── plumed_analysis.dat   ← copied from plumed_analysis_2d.dat
+    ├── plumed_analysis.dat   ← generated (type: costheta) or copied (type: custom)
     ├── HILLS
     ├── COLVAR
     ├── dist.cv2.weight

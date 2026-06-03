@@ -16,7 +16,7 @@
 
 - Single `config.yaml` per simulation
 - Built-in production `mdp` templates for Martini CG and OPLS-AA (selected via `forcefield`)
-- 1D PMF, or 2D FES by projecting onto a second (unbiased) collective variable
+- 1D PMF, or 2D FES along a second collective variable — either projected (unbiased) or biased; ring-orientation cosθ generated automatically
 
 ## Installation
 

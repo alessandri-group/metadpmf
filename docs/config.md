@@ -184,6 +184,76 @@ pmf:
 
 ---
 
+## `cv2`
+
+```yaml
+cv2:
+  enabled: false
+  type:    costheta
+  bias:    false
+  sigma:   0.1
+  fold:    none
+  label:   "cos θ"
+  min:    -1.0
+  max:     1.0
+  bins:    51
+  # mol1_plane: [1, 2, 3]
+  # mol2_plane: [4, 5, 6]
+  plumed_analysis: plumed_analysis_2d.dat
+```
+
+A second collective variable, used to build a 2D free-energy surface. The
+metadynamics bias **always** acts on the centre-of-mass distance; `cv2` adds an
+orientational coordinate that is either projected onto or also biased.
+
+### Three modes
+
+`enabled` and `bias` together select the mode:
+
+| Mode | `enabled` | `bias` | Bias acts on | Output |
+|---|---|---|---|---|
+| **A** | `false` | — | distance | 1D PMF |
+| **B** — project | `true` | `false` | distance | 2D FES (cv2 unbiased) |
+| **C** — bias both | `true` | `true` | distance + cv2 | 2D FES |
+
+In Mode B the production run is identical to Mode A; cv2 is computed only during
+reweighting. In Mode C cv2 is biased by METAD, so it appears in both the
+production and analysis PLUMED inputs.
+
+### Keys
+
+| Key | Description |
+|---|---|
+| `enabled` | Turn the second CV on |
+| `type` | `costheta` = built-in generator (cosine of the angle between the two ring-plane normals, built from `mol1_plane`/`mol2_plane`); `custom` = supply your own PLUMED via `plumed_analysis` |
+| `bias` | `false` = project (Mode B); `true` = also bias cv2 (Mode C) |
+| `sigma` | metadynamics Gaussian width on cv2 (only used when `bias: true`) |
+| `fold` | `none`, `abs` (→ \|cosθ\|), or `sq` (→ cos²θ); see below |
+| `label` | y-axis label in the 2D plot |
+| `min` / `max` | cv2 histogram range; also the metad grid bounds on cv2 when biased |
+| `bins` | number of cv2 histogram (and grid) bins |
+| `mol1_plane` / `mol2_plane` | 3 atoms per molecule defining each ring plane (for `type: costheta`). Default to `molecule.mol*_atoms` when those have exactly 3 atoms |
+| `plumed_analysis` | for `type: custom` only: your PLUMED file that defines cv2 and prints `dist, cv2, metad.bias` |
+
+### cosθ sign degeneracy and `fold`
+
+For two stacked rings, `cosθ = +1` and `cosθ = -1` both mean "planes parallel":
+the sign just reflects which face of each ring the normal points from. For a
+**planar** molecule the two faces are equivalent (the molecular plane is a mirror,
+true even for in-plane-asymmetric molecules like phenol), so the two halves of
+the cv2 axis are physically redundant.
+
+- `fold: none` (default) keeps the full `[-1, 1]` range. For projection (Mode B)
+  this is useful: a converged FES should be symmetric about 0, a free
+  convergence check.
+- `fold: abs` or `sq` collapses the redundant half. This is mainly worth it when
+  **biasing** a planar molecule (Mode C), where it avoids filling two equivalent
+  regions. Set `min: 0.0` to match the folded range. Do **not** fold a molecule
+  whose two faces differ (non-planar, or different groups above/below the ring) —
+  there `+1` and `-1` are genuinely distinct states.
+
+---
+
 ## `paths`
 
 ```yaml

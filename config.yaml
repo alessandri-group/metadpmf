@@ -69,22 +69,32 @@ pmf:
   levels_2d: [-10, -7.5, -5, -2.5, 0, 2.5, 5, 7.5, 10]
 
 # -------------------------------------------------------------------
-# Second CV for 2D FES projection (optional)
-# Enable this to compute a 2D free-energy surface: the bias acts on
-# distance (CV1) only, and CV2 is an unbiased order parameter tracked
-# in the trajectory (e.g. ring orientation via PLANES + POLYMER_ANGLES).
+# Second CV for a 2D free-energy surface (optional)
+# Three modes, selected by enabled + bias:
+#   A  enabled: false              -> bias distance only, 1D PMF
+#   B  enabled: true,  bias: false -> bias distance, project onto CV2 (2D FES)
+#   C  enabled: true,  bias: true  -> bias distance AND CV2 (2D FES)
+# With type: costheta the CV2 (cosine of the angle between the two ring-plane
+# normals) is generated automatically from mol1_plane / mol2_plane -- no need to
+# hand-write the PLUMED. Use type: custom to supply your own file instead.
 # -------------------------------------------------------------------
 cv2:
   enabled: false
+  type:    costheta       # 'costheta' (auto-generated) or 'custom' (your own file)
+  bias:    false          # false = project only (B); true = also bias CV2 (C)
+  sigma:   0.1            # metad Gaussian width on CV2 (only used if bias: true)
+  fold:    none           # none | abs | sq -- fold cosθ for planar (face-symmetric)
+                          # molecules when biasing; see docs. Set min: 0.0 with abs/sq.
   label:   "cos θ"        # y-axis label in the 2D PMF plot
-  min:    -1.0            # CV2 grid lower bound
+  min:    -1.0            # CV2 grid lower bound (also the metad grid bound on CV2)
   max:     1.0            # CV2 grid upper bound
   bins:    51             # number of CV2 histogram bins
-  # User-provided PLUMED input for reweighting (relative to config.yaml).
-  # Must define CV2 and print:
-  #   PRINT STRIDE=1 ARG=dist,<cv2>,metad.bias FILE=COLVAR
-  # See the 2D FES tutorial for a ready-to-use template (cosine of the angle
-  # between ring plane normals, computed via DISTANCE COMPONENTS + CUSTOM).
+  # Plane-defining atoms for type: costheta (3 per molecule). Default to the
+  # molecule centre atoms above when those number exactly 3 (3-bead ring case).
+  # mol1_plane: [1, 2, 3]
+  # mol2_plane: [4, 5, 6]
+  # For type: custom only -- your PLUMED input (relative to config.yaml) that
+  # defines CV2 and prints:  PRINT STRIDE=1 ARG=dist,<cv2>,metad.bias FILE=COLVAR
   plumed_analysis: plumed_analysis_2d.dat
 
 # -------------------------------------------------------------------

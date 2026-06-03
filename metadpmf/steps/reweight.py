@@ -11,9 +11,11 @@ plumed driver to produce analysis/COLVAR.
 
 2D mode (cv2.enabled: true):
   COLVAR columns: time, distance, cv2, bias
-  plumed_analysis.dat is copied from the user-provided file (cv2.plumed_analysis).
-  The user is responsible for writing the PLUMED input that defines CV2 and
-  prints dist, cv2, metad.bias to COLVAR.
+  cv2.type == 'costheta': plumed_analysis.dat is generated from config (the
+    cosθ block is built from cv2.mol1_plane / cv2.mol2_plane).
+  cv2.type == 'custom':   plumed_analysis.dat is copied from the user-provided
+    file (cv2.plumed_analysis); the user defines CV2 and prints
+    dist, cv2, metad.bias to COLVAR.
 """
 
 import shutil
@@ -23,31 +25,35 @@ from metadpmf.config import backend_cmds, render_plumed_analysis
 
 
 def run(cfg: dict) -> None:
-    base    = Path(cfg["_dir"])
-    two_d   = cfg["cv2"]["enabled"]
+    base     = Path(cfg["_dir"])
+    cv2      = cfg["cv2"]
+    two_d    = cv2["enabled"]
+    custom   = two_d and cv2.get("type", "costheta") == "custom"
     dir_name = "analysis_2d" if two_d else "analysis"
     anal_dir = base / dir_name
     anal_dir.mkdir(exist_ok=True)
 
     plumed_dat = anal_dir / "plumed_analysis.dat"
 
-    if two_d:
-        # 2D mode: copy user-provided PLUMED input into analysis_2d/
-        src = base / cfg["cv2"]["plumed_analysis"]
+    if custom:
+        # type: custom — copy user-provided PLUMED input into analysis_2d/
+        src = base / cv2["plumed_analysis"]
         if not src.exists():
             raise FileNotFoundError(
                 f"cv2.plumed_analysis file not found: {src}\n"
                 "Create a PLUMED input file that defines CV2 and prints "
                 "dist, cv2, metad.bias to COLVAR, then set cv2.plumed_analysis "
-                "to its path in config.yaml."
+                "to its path in config.yaml (or use cv2.type: costheta)."
             )
         shutil.copy(src, plumed_dat)
-        print(f"Copied: {cfg['cv2']['plumed_analysis']} → {dir_name}/plumed_analysis.dat")
+        print(f"Copied: {cv2['plumed_analysis']} → {dir_name}/plumed_analysis.dat")
         print("Note: COLVAR will have columns: time, distance, cv2, bias")
     else:
-        # 1D mode: generate plumed_analysis.dat from config
+        # 1D, or 2D with the built-in cosθ generator: write from config
         plumed_dat.write_text(render_plumed_analysis(cfg))
         print(f"Written: {dir_name}/plumed_analysis.dat")
+        if two_d:
+            print("Note: COLVAR will have columns: time, distance, cv2, bias")
 
     cmds = backend_cmds(cfg)
     traj = cfg["paths"].get("traj", "metad.xtc")
