@@ -35,13 +35,29 @@ import matplotlib.pyplot as plt
 from metadpmf.config import R
 
 
-def run(cfg: dict, temperature: float) -> None:
+def run(cfg: dict, temperature: float, marginal: bool = False) -> None:
     base      = Path(cfg["_dir"])
     two_d     = cfg["cv2"]["enabled"]
     dir_name  = "analysis_2d" if two_d else "analysis"
     anal_dir  = base / dir_name
-    fes_path  = anal_dir / "fes.dat"
 
+    if marginal and not two_d:
+        raise ValueError(
+            "--1d only applies to a 2D run (cv2.enabled: true). For a 1D run "
+            "just use 'metadpmf pmf' without --1d."
+        )
+
+    if marginal:
+        fes_path = anal_dir / "fes_1d.dat"
+        if not fes_path.exists():
+            raise FileNotFoundError(
+                f"{dir_name}/fes_1d.dat not found. Run 'metadpmf fes --1d' first."
+            )
+        _run_1d(cfg, temperature, anal_dir, fes_path,
+                corr_name="fes_1d_corr_and_shifted.dat", pdf_name="pmf_1d.pdf")
+        return
+
+    fes_path = anal_dir / "fes.dat"
     if not fes_path.exists():
         raise FileNotFoundError(
             f"{dir_name}/fes.dat not found. Run 'metadpmf fes' first."
@@ -57,7 +73,9 @@ def run(cfg: dict, temperature: float) -> None:
 # 1D PMF
 # ---------------------------------------------------------------------------
 
-def _run_1d(cfg, temperature, anal_dir, fes_path):
+def _run_1d(cfg, temperature, anal_dir, fes_path,
+            corr_name="fes_corr_and_shifted.dat", pdf_name="pmf.pdf"):
+    dname = anal_dir.name
     distances, fes, errors = _parse_fes_1d(fes_path)
 
     # Jacobian correction
@@ -78,16 +96,16 @@ def _run_1d(cfg, temperature, anal_dir, fes_path):
     shift   = sum(ref_vals) / len(ref_vals)
     shifted = [c - shift for c in corrected]
 
-    _write_1d(anal_dir / "fes_corr_and_shifted.dat", distances, shifted, errors)
-    print("Written: analysis/fes_corr_and_shifted.dat")
+    _write_1d(anal_dir / corr_name, distances, shifted, errors)
+    print(f"Written: {dname}/{corr_name}")
 
     _plot_1d(
         distances, shifted, errors,
-        anal_dir / "pmf.pdf",
+        anal_dir / pdf_name,
         xrange=cfg["pmf"].get("xrange"),
         yrange=cfg["pmf"].get("yrange"),
     )
-    print("Written: analysis/pmf.pdf")
+    print(f"Written: {dname}/{pdf_name}")
 
     min_val = min(shifted)
     r_min   = distances[shifted.index(min_val)]
@@ -253,15 +271,22 @@ def _plot_2d(FES, cv1_edges, cv2_edges, cv2_cfg, out_path, pmf_cfg):
     """Contour plot of the 2D corrected PMF."""
     from matplotlib.colors import TwoSlopeNorm
 
-    # Replace inf with a high value so contourf renders the empty regions
+    # Unsampled bins (FES = inf) are pushed above the top level so that, with
+    # extend='both', they saturate to the over-colour rather than leaving the
+    # facecolor (grey) showing through.
+    levels = pmf_cfg.get("levels_2d", [-10, -7.5, -5, -2.5, 0, 2.5, 5, 7.5, 10])
     FES_plot = FES.copy()
-    FES_plot[~np.isfinite(FES_plot)] = 50.0
+    FES_plot[~np.isfinite(FES_plot)] = max(levels) + 1.0
 
     # meshgrid: X varies along CV1, Y along CV2
     X, Y = np.meshgrid(cv1_edges, cv2_edges)  # shape: (nbin2, nbin1)
 
-    levels = pmf_cfg.get("levels_2d", [-10, -7.5, -5, -2.5, 0, 2.5, 5, 7.5, 10])
-    cmap   = plt.get_cmap("coolwarm")
+    cmap   = plt.get_cmap("coolwarm").copy()
+    # Out-of-range values saturate to the colormap ends instead of going
+    # unfilled (which showed the grey facecolor). set_over/under make this
+    # explicit so the over-region (incl. unsampled bins) is solid dark red.
+    cmap.set_over(cmap(1.0))
+    cmap.set_under(cmap(0.0))
     # TwoSlopeNorm pins vcenter=0 to the colormap midpoint so the red/blue
     # transition is always at zero regardless of asymmetric level choices
     norm   = TwoSlopeNorm(vmin=min(levels), vcenter=0, vmax=max(levels))
@@ -269,8 +294,9 @@ def _plot_2d(FES, cv1_edges, cv2_edges, cv2_cfg, out_path, pmf_cfg):
     fig, ax = plt.subplots(figsize=(9.6, 7))
     ax.set_facecolor(cmap(norm(0.0)))
 
-    cf = ax.contourf(X, Y, FES_plot.T, levels=levels, cmap=cmap, norm=norm)
-    cb = fig.colorbar(cf)
+    cf = ax.contourf(X, Y, FES_plot.T, levels=levels, cmap=cmap, norm=norm,
+                     extend="both")
+    cb = fig.colorbar(cf, extend="both")
     cb.set_label(r"$\Delta G$ (kJ mol$^{-1}$)", fontsize=13)
 
     ax.set_xlabel("r (nm)", fontsize=14)

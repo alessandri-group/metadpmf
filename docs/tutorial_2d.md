@@ -137,6 +137,24 @@ pmf:
 
 ---
 
+## Also getting the 1D PMF from a 2D-biased run
+
+A 2D-biased run (Mode C) still contains the full 1D PMF: reweighting removes the
+*entire* 2D bias, so the weighted frames can be histogrammed along distance
+alone (marginalising over cosθ). Add `--1d` to `fes` and `pmf`:
+
+```bash
+metadpmf fes --1d      # → analysis_2d/fes_1d.dat (+ dist_1d.weight, blocks_1d/)
+metadpmf pmf --1d      # → analysis_2d/pmf_1d.pdf, fes_1d_corr_and_shifted.dat
+```
+
+This reuses the existing `analysis_2d/COLVAR` (no re-reweighting needed) and
+writes alongside the 2D outputs, so you get both the 2D FES and the 1D PMF from
+a single simulation. The flag is a no-op error on a 1D run — there, plain
+`metadpmf fes` / `pmf` already give the 1D PMF.
+
+---
+
 ## cosθ sign degeneracy (`fold`)
 
 `cosθ = +1` and `cosθ = -1` both mean the ring planes are parallel — the sign
@@ -203,6 +221,8 @@ MOL_in_SOLVENT/
     ├── fes.dat
     ├── fes_2d_corr.dat
     ├── pmf_2d.pdf
+    ├── fes_1d.dat            ← only if you ran `fes --1d`
+    ├── pmf_1d.pdf            ← only if you ran `pmf --1d`
     └── blocks/
         ├── fes.1.dat
         ├── fes.11.dat

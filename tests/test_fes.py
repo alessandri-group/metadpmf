@@ -59,6 +59,18 @@ def test_load_colvar_1d_distances(tmp_path):
     assert np.allclose(distances, [0.4, 0.6, 0.8])
 
 
+def test_load_colvar_1d_marginalises_2d_colvar(tmp_path):
+    """--1d path: a 4-column (2D-biased) COLVAR feeds the 1D loader, which must
+    take distance from col 2 and the bias from the LAST column (ignoring cv2)."""
+    p = tmp_path / "COLVAR"
+    # bias differs per frame so weights would change if the wrong column is read
+    _write_colvar_2d(p, [(0, 0.4, -0.9, 2.0), (1, 0.6, 0.1, 8.0)])
+    distances, weights = _load_colvar_1d(p, KBT)
+    assert np.allclose(distances, [0.4, 0.6])
+    # weight = exp((bias - bmax)/kbt); bmax = 8.0
+    assert np.allclose(weights, np.exp((np.array([2.0, 8.0]) - 8.0) / KBT))
+
+
 def test_load_colvar_1d_equal_bias_gives_equal_weights(tmp_path):
     """All frames with the same bias → all weights equal 1.0 (exp(0))."""
     p = tmp_path / "COLVAR"

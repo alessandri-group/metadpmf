@@ -34,12 +34,19 @@ import numpy as np
 from metadpmf.config import kbt as get_kbt
 
 
-def run(cfg: dict, block_size: int = None) -> None:
+def run(cfg: dict, block_size: int = None, marginal: bool = False) -> None:
     base      = Path(cfg["_dir"])
     two_d     = cfg["cv2"]["enabled"]
     dir_name  = "analysis_2d" if two_d else "analysis"
     anal_dir  = base / dir_name
     colvar    = anal_dir / "COLVAR"
+
+    if marginal and not two_d:
+        raise ValueError(
+            "--1d only applies to a 2D run (cv2.enabled: true); it marginalises "
+            "the 2D-biased COLVAR onto the distance axis. For a 1D run just use "
+            "'metadpmf fes' without --1d."
+        )
 
     if not colvar.exists():
         raise FileNotFoundError(
@@ -53,7 +60,13 @@ def run(cfg: dict, block_size: int = None) -> None:
     nbin    = fes_cfg["bins"]
     bmax_bs = fes_cfg["block_max"]
 
-    if two_d:
+    if marginal:
+        # 1D PMF from the 2D-biased run: reweighting removes the full 2D bias,
+        # then we histogram along distance only (marginalise over cv2).
+        _run_1d(anal_dir, colvar, KBT, gmin, gmax, nbin, bmax_bs, block_size,
+                weight_name="dist_1d.weight", fes_name="fes_1d.dat",
+                blocks_name="blocks_1d")
+    elif two_d:
         _run_2d(cfg, anal_dir, colvar, KBT, gmin, gmax, nbin, bmax_bs, block_size)
     else:
         _run_1d(anal_dir, colvar, KBT, gmin, gmax, nbin, bmax_bs, block_size)
@@ -63,22 +76,24 @@ def run(cfg: dict, block_size: int = None) -> None:
 # 1D workflow
 # ---------------------------------------------------------------------------
 
-def _run_1d(anal_dir, colvar, KBT, gmin, gmax, nbin, bmax_bs, block_size):
-    print("Reading analysis/COLVAR ...")
+def _run_1d(anal_dir, colvar, KBT, gmin, gmax, nbin, bmax_bs, block_size,
+            weight_name="dist.weight", fes_name="fes.dat", blocks_name="blocks"):
+    dname = anal_dir.name
+    print(f"Reading {dname}/COLVAR ...")
     distances, weights = _load_colvar_1d(colvar, KBT)
     print(f"  {len(distances)} frames loaded")
 
-    dw_path = anal_dir / "dist.weight"
+    dw_path = anal_dir / weight_name
     np.savetxt(dw_path, np.column_stack([distances, weights]), fmt="%.9f")
-    print("Written: analysis/dist.weight")
+    print(f"Written: {dname}/{weight_name}")
 
-    blocks_dir = anal_dir / "blocks"
+    blocks_dir = anal_dir / blocks_name
     blocks_dir.mkdir(exist_ok=True)
 
     if block_size is not None:
         fes_data = _block_fes_1d(distances, weights, gmin, gmax, nbin, KBT, block_size)
-        _write_fes_1d(anal_dir / "fes.dat", fes_data)
-        print(f"Written: analysis/fes.dat  (block size {block_size})")
+        _write_fes_1d(anal_dir / fes_name, fes_data)
+        print(f"Written: {dname}/{fes_name}  (block size {block_size})")
         return
 
     block_sizes = list(range(1, bmax_bs, 10))
@@ -96,15 +111,16 @@ def _run_1d(anal_dir, colvar, KBT, gmin, gmax, nbin, bmax_bs, block_size):
             errors.append((bs, mean_err))
             last_finite_fes = finite
 
-    np.savetxt(anal_dir / "errors.block", errors, fmt="%.9f")
-    print("Written: analysis/errors.block")
-    print(f"Written: analysis/blocks/  ({len(block_sizes)} files)")
+    errors_name = "errors_1d.block" if weight_name != "dist.weight" else "errors.block"
+    np.savetxt(anal_dir / errors_name, errors, fmt="%.9f")
+    print(f"Written: {dname}/{errors_name}")
+    print(f"Written: {dname}/{blocks_name}/  ({len(block_sizes)} files)")
 
     if last_finite_fes:
-        _write_fes_1d(anal_dir / "fes.dat", last_finite_fes)
-        print(f"Written: analysis/fes.dat  (block size {block_sizes[-1]})")
+        _write_fes_1d(anal_dir / fes_name, last_finite_fes)
+        print(f"Written: {dname}/{fes_name}  (block size {block_sizes[-1]})")
     else:
-        print("Warning: no finite FES bins found; analysis/fes.dat not written.")
+        print(f"Warning: no finite FES bins found; {dname}/{fes_name} not written.")
 
 
 # ---------------------------------------------------------------------------
@@ -169,8 +185,10 @@ def _run_2d(cfg, anal_dir, colvar, KBT, gmin1, gmax1, nbin1, bmax_bs, block_size
 def _load_colvar_1d(path: Path, kbt: float):
     """Read 1D COLVAR and return (distances, weights).
 
-    COLVAR columns: time  distance  bias
-    Weight = exp((bias - max_bias) / kbt)
+    COLVAR columns: time  distance  bias   (1D run)
+                or: time  distance  cv2  bias   (2D run, marginalised to 1D)
+    Distance is column 2; the metad bias is always the last column, so this
+    loader handles both layouts. Weight = exp((bias - max_bias) / kbt).
     """
     data = []
     with open(path) as f:
@@ -181,7 +199,7 @@ def _load_colvar_1d(path: Path, kbt: float):
             parts = line.split()
             if len(parts) < 3:
                 continue
-            data.append((float(parts[1]), float(parts[2])))
+            data.append((float(parts[1]), float(parts[-1])))
 
     if not data:
         raise ValueError("COLVAR file appears empty or has no valid data rows.")

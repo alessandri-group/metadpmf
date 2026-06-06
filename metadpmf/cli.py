@@ -42,6 +42,13 @@ def main():
         metavar="N",
         help="Use a single block size instead of scanning (writes fes.dat directly)",
     )
+    p.add_argument(
+        "--1d",
+        dest="marginal",
+        action="store_true",
+        help="2D run only: marginalise the 2D-biased COLVAR onto distance and "
+             "write the 1D PMF (fes_1d.dat)",
+    )
 
     # pmf: Jacobian correction + plot
     p = subparsers.add_parser(
@@ -51,6 +58,12 @@ def main():
     p.add_argument(
         "--temp", type=float, default=None,
         help="Override temperature (K)",
+    )
+    p.add_argument(
+        "--1d",
+        dest="marginal",
+        action="store_true",
+        help="2D run only: plot the 1D PMF from fes_1d.dat (run 'fes --1d' first)",
     )
 
     args = parser.parse_args()
@@ -73,12 +86,12 @@ def main():
 
     elif args.command == "fes":
         from metadpmf.steps import fes
-        fes.run(cfg, block_size=args.block_size)
+        fes.run(cfg, block_size=args.block_size, marginal=args.marginal)
 
     elif args.command == "pmf":
         from metadpmf.steps import pmf
         temp = args.temp or cfg["temperature"]
-        pmf.run(cfg, temperature=temp)
+        pmf.run(cfg, temperature=temp, marginal=args.marginal)
 
 
 if __name__ == "__main__":
