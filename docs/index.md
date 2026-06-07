@@ -8,7 +8,7 @@
 metadynamics simulations in GROMACS + PLUMED to compute potentials of mean
 force (PMFs) along the centre-of-mass distance between two molecules.
 
-It supports both coarse-grained Martini and atomistic OPLS-AA systems, offers
+It supports both coarse-grained Martini and atomistic OPLS-AA / GAFF2 systems, offers
 optional projection onto a second collective variable for a 2D free-energy
 surface, and generates ready-to-run shell scripts rather than running
 simulations directly, so you remain in control of submission.
