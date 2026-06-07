@@ -44,9 +44,9 @@ def _apply_defaults(cfg: dict) -> dict:
     p.setdefault("print_stride", 5000)
 
     # forcefield is required (no default) — validated in _validate.
-    # dt default is forcefield-aware: Martini CG runs at 20 fs, OPLS-AA at 2 fs.
-    # nsteps stays 50M for both → 1 us (Martini) vs 100 ns (OPLS), sensible per method.
-    _dt_default = {"martini": 0.020, "opls": 0.002}.get(cfg.get("forcefield"))
+    # dt default is forcefield-aware: Martini CG runs at 20 fs, atomistic at 2 fs.
+    # nsteps stays 50M for both → 1 us (Martini) vs 100 ns (atomistic), sensible per method.
+    _dt_default = {"martini": 0.020, "opls": 0.002, "gaff2": 0.002}.get(cfg.get("forcefield"))
     cfg.setdefault("mdp", {})
     cfg["mdp"].setdefault("nsteps", 50000000)
     if _dt_default is not None:
@@ -110,9 +110,9 @@ def _validate(cfg: dict) -> None:
 
     ff = cfg.get("forcefield")
     if ff is None:
-        errors.append("forcefield is required: set it to 'martini' or 'opls'")
-    elif ff not in ("martini", "opls"):
-        errors.append(f"forcefield '{ff}' is not known: must be 'martini' or 'opls'")
+        errors.append("forcefield is required: set it to 'martini', 'opls', or 'gaff2'")
+    elif ff not in ("martini", "opls", "gaff2"):
+        errors.append(f"forcefield '{ff}' is not known: must be 'martini', 'opls', or 'gaff2'")
 
     backend = cfg.get("backend", "local")
     if backend not in ("local", "slurm"):
