@@ -1,0 +1,860 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Metadynamics PMF workflow for GROMACS + PLUMED">
+      
+      
+      
+        <link rel="canonical" href="https://alessandri-group.github.io/metadpmf/tutorial/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../tutorial_2d/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Tutorial - metadpmf</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tutorial" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="metadpmf" class="md-header__button md-logo" aria-label="metadpmf" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            metadpmf
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tutorial
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/alessandri-group/metadpmf" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="metadpmf" class="md-nav__button md-logo" aria-label="metadpmf" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    metadpmf
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/alessandri-group/metadpmf" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorial
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-prepare-your-simulation-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. Prepare your simulation directory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-edit-configyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Edit config.yaml
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-generate-run-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Generate run files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-run-the-metadynamics-simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Run the metadynamics simulation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-reweight-the-trajectory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Reweight the trajectory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-block-fes-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Block FES analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-apply-jacobian-correction-and-plot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Apply Jacobian correction and plot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#directory-layout-after-a-complete-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directory layout after a complete run
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_2d/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorial — 2D FES
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-prepare-your-simulation-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. Prepare your simulation directory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-edit-configyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Edit config.yaml
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-generate-run-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Generate run files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-run-the-metadynamics-simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Run the metadynamics simulation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-reweight-the-trajectory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Reweight the trajectory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-block-fes-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Block FES analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-apply-jacobian-correction-and-plot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Apply Jacobian correction and plot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#directory-layout-after-a-complete-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directory layout after a complete run
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="tutorial">Tutorial</h1>
+<p>This tutorial walks through a complete metadynamics PMF calculation,
+from a prepared starting structure to a corrected PMF plot.</p>
+<hr />
+<h2 id="0-prepare-your-simulation-directory">0. Prepare your simulation directory</h2>
+<p>Create a working directory for your system and copy in the config:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkdir<span class="w"> </span>MOL_in_SOLVENT<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>MOL_in_SOLVENT
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>cp<span class="w"> </span>/path/to/metadpmf/config.yaml<span class="w"> </span>.
+</code></pre></div>
+<p>You need two input files in this directory:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>MOL_in_SOLVENT/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── config.yaml
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── start.gro   # equilibrated starting structure of the dimer in solvent
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>└── system.top            # GROMACS topology (+ any included .itp files)
+</code></pre></div>
+<p>The starting structure should already be NPT-equilibrated. The two molecules
+of interest must be present in the box with their atoms numbered consecutively
+so you can identify them in the <code>molecule</code> section of <code>config.yaml</code>.</p>
+<hr />
+<h2 id="1-edit-configyaml">1. Edit config.yaml</h2>
+<p>Set the atom indices of the beads/atoms that define each molecule's centre,
+and the temperature:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">298.15</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nt">molecule</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">mol1_atoms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">3</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">mol2_atoms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">4</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">6</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p>Tune the PLUMED metadynamics parameters for your system, in particular
+<code>plumed.grid_min/max</code> (must span the full distance range you want to explore)
+and <code>plumed.wall_at</code> (upper wall to keep sampling efficient).</p>
+<p>Choose your backend. For a workstation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">backends</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">local</span><span class="p">:</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">gmx</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">gmx</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">plumed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plumed</span>
+</code></pre></div>
+<p>For a SLURM cluster:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">slurm</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">backends</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">slurm</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">gmx</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">gmx_mpi</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">plumed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plumed</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">mdrun</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;srun</span><span class="nv"> </span><span class="s">gmx_mpi</span><span class="nv"> </span><span class="s">mdrun&quot;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nt">grompp</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;srun</span><span class="nv"> </span><span class="s">gmx_mpi</span><span class="nv"> </span><span class="s">grompp&quot;</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nt">header</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">slurm_header.sh</span>
+</code></pre></div>
+<p><code>slurm_header.sh</code> contains your <code>#SBATCH</code> directives and <code>module load</code> lines.
+This is cluster-specific; consult your HPC documentation.</p>
+<hr />
+<h2 id="2-generate-run-files">2. Generate run files</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>metadpmf<span class="w"> </span>run
+</code></pre></div>
+<p>This writes:</p>
+<ul>
+<li><code>plumed.dat</code> — PLUMED input for the production metadynamics run, generated
+  from your config (atom indices, METAD parameters, upper wall)</li>
+<li><code>metad.mdp</code> — GROMACS MDP with your temperature, timestep, and nsteps
+  (or skipped if you supply your own MDP via <code>paths.mdp</code>)</li>
+<li><code>run_metad.sh</code> — shell script: grompp followed by mdrun with <code>--plumed</code></li>
+</ul>
+<hr />
+<h2 id="3-run-the-metadynamics-simulation">3. Run the metadynamics simulation</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>bash<span class="w"> </span>run_metad.sh<span class="w">    </span><span class="c1"># local</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1"># or: sbatch run_metad.sh   # slurm</span>
+</code></pre></div>
+<p>This produces <code>metad.xtc</code> (compressed trajectory), <code>HILLS</code> (deposited
+Gaussians), and <code>COLVAR</code> (CV and bias values during the run).</p>
+<p>Monitor <code>HILLS</code> to confirm that Gaussians are being deposited and the bias
+is building up. The simulation is converged when the FES no longer changes
+significantly with additional sampling.</p>
+<hr />
+<h2 id="4-reweight-the-trajectory">4. Reweight the trajectory</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>metadpmf<span class="w"> </span>reweight
+</code></pre></div>
+<p>This writes:</p>
+<ul>
+<li><code>analysis/plumed_analysis.dat</code> — PLUMED input for <code>plumed driver</code>:
+  reads <code>HILLS</code> to reconstruct the bias on each frame, <code>PACE=1e9</code> so no new
+  hills are added during the analysis</li>
+<li><code>reweight.sh</code> — copies <code>HILLS</code> into <code>analysis/</code> and runs <code>plumed driver</code></li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>bash<span class="w"> </span>reweight.sh<span class="w">     </span><span class="c1"># local</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="c1"># or: sbatch reweight.sh   # slurm</span>
+</code></pre></div>
+<p>Produces <code>analysis/COLVAR</code> with three columns: <code>time  distance  bias</code>.</p>
+<hr />
+<h2 id="5-block-fes-analysis">5. Block FES analysis</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>metadpmf<span class="w"> </span>fes
+</code></pre></div>
+<p>Reads <code>analysis/COLVAR</code>, computes per-frame reweighting weights
+<span class="arithmatex">\(w_i = \exp\!\bigl[(V_i - V_\text{max})/k_BT\bigr]\)</span>,
+then runs block analysis for block sizes 1 to <code>fes.block_max</code> (step 10).</p>
+<p>Output in <code>analysis/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dist.weight</code></td>
+<td>Per-frame (distance, reweighting weight)</td>
+</tr>
+<tr>
+<td><code>errors.block</code></td>
+<td>(block size, mean FES error) — inspect for convergence</td>
+</tr>
+<tr>
+<td><code>fes.dat</code></td>
+<td>FES from the largest block size</td>
+</tr>
+<tr>
+<td><code>blocks/fes.{N}.dat</code></td>
+<td>FES for every block size N</td>
+</tr>
+</tbody>
+</table>
+<p>Inspect <code>errors.block</code> to verify the error has plateaued at large block
+sizes (sign of a well-converged simulation). If you want to use a specific
+block size directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>metadpmf<span class="w"> </span>fes<span class="w"> </span>--block-size<span class="w"> </span><span class="m">200</span>
+</code></pre></div>
+<hr />
+<h2 id="6-apply-jacobian-correction-and-plot">6. Apply Jacobian correction and plot</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>metadpmf<span class="w"> </span>pmf
+</code></pre></div>
+<p>Reads <code>analysis/fes.dat</code> and applies a Jacobian (translational entropy)
+correction. When the PMF is computed along a radial distance <span class="arithmatex">\(r\)</span> in 3D, the
+spherical volume element scales as <span class="arithmatex">\(r^2\)</span>, meaning there is more accessible
+phase-space volume at larger separations even for a flat interaction. The
+correction removes this purely geometric bias:</p>
+<div class="arithmatex">\[\Delta G(r) = \text{FES}(r) + 2RT\ln(r)\]</div>
+<p>The corrected profile is then shifted to zero by subtracting the mean value
+over the reference plateau region defined by <code>pmf.shift_range</code> (default
+1.5–1.7 nm). This range should correspond to distances where the two
+molecules no longer interact (flat, noise-dominated region of the FES).</p>
+<p>Output in <code>analysis/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fes_corr_and_shifted.dat</code></td>
+<td>Jacobian-corrected and shifted PMF (nm, kJ/mol, error)</td>
+</tr>
+<tr>
+<td><code>pmf.pdf</code></td>
+<td>Plot of the shifted PMF with statistical error bars</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Adjusting the zero reference</p>
+<p>If the default <code>shift_range</code> does not fall in a flat region of your FES,
+adjust it in <code>config.yaml</code>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">pmf</span><span class="p">:</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">shift_range</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1.8</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2.2</span><span class="p p-Indicator">]</span>
+</code></pre></div></p>
+</div>
+<h2 id="directory-layout-after-a-complete-run">Directory layout after a complete run</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>MOL_in_SOLVENT/
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>├── config.yaml
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>├── start.gro
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>├── system.top
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>├── plumed.dat
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>├── metad.mdp
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>├── run_metad.sh
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>├── metad.tpr / metad.xtc / metad.log
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>├── HILLS
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>├── COLVAR
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>├── reweight.sh
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>└── analysis/
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>    ├── plumed_analysis.dat
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>    ├── HILLS
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>    ├── COLVAR
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>    ├── dist.weight
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>    ├── errors.block
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>    ├── fes.dat
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>    ├── fes_corr_and_shifted.dat
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>    ├── pmf.pdf
+<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>    └── blocks/
+<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>        ├── fes.1.dat
+<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>        ├── fes.11.dat
+<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a>        └── ...
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

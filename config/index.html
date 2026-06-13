@@ -1,0 +1,1243 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Metadynamics PMF workflow for GROMACS + PLUMED">
+      
+      
+      
+        <link rel="canonical" href="https://alessandri-group.github.io/metadpmf/config/">
+      
+      
+        <link rel="prev" href="../tutorial_2d/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Configuration reference - metadpmf</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#configuration-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="metadpmf" class="md-header__button md-logo" aria-label="metadpmf" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            metadpmf
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Configuration reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/alessandri-group/metadpmf" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="metadpmf" class="md-nav__button md-logo" aria-label="metadpmf" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    metadpmf
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/alessandri-group/metadpmf" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_2d/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorial — 2D FES
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        temperature
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#forcefield" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        forcefield
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#molecule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        molecule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plumed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        plumed
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="plumed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-the-grid-wall-and-fes-ranges-relate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the grid, wall, and FES ranges relate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mdp
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pmf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pmf
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cv2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cv2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="cv2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#three-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Three modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cos-sign-degeneracy-and-fold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cosθ sign degeneracy and fold
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-backends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backend / backends
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        temperature
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#forcefield" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        forcefield
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#molecule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        molecule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plumed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        plumed
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="plumed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-the-grid-wall-and-fes-ranges-relate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the grid, wall, and FES ranges relate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mdp
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pmf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pmf
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cv2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cv2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="cv2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#three-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Three modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cos-sign-degeneracy-and-fold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cosθ sign degeneracy and fold
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-backends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        backend / backends
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="configuration-reference">Configuration reference</h1>
+<p>All settings live in a single <code>config.yaml</code> file that you copy into your
+simulation directory and edit.</p>
+<hr />
+<h2 id="temperature"><code>temperature</code></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">298.15</span>
+</code></pre></div>
+<p>Simulation temperature in Kelvin. Used in:</p>
+<ul>
+<li>The PLUMED <code>TEMP=</code> parameter</li>
+<li>The MDP <code>ref_t</code> and <code>gen_temp</code> fields</li>
+<li>The reweighting factor <span class="arithmatex">\(k_BT\)</span></li>
+<li>The Jacobian correction <span class="arithmatex">\(2RT\ln(r)\)</span></li>
+</ul>
+<hr />
+<h2 id="forcefield"><code>forcefield</code></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">forcefield</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">martini</span><span class="w">   </span><span class="c1"># &#39;martini&#39;, &#39;opls&#39;, &#39;gaff2&#39;, or &#39;gromos&#39; — REQUIRED, no default</span>
+</code></pre></div>
+<p>Required — there is no default, so you must set it to <code>martini</code>, <code>opls</code>,
+<code>gaff2</code>, or <code>gromos</code> (any other value is rejected). Selects the built-in
+production MDP template written by <code>metadpmf run</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Template</th>
+<th>Timestep</th>
+<th>Electrostatics</th>
+<th>Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>martini</code></td>
+<td><code>md_martini.mdp</code></td>
+<td>20 fs</td>
+<td>reaction-field</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>opls</code></td>
+<td><code>md_opls.mdp</code></td>
+<td>2 fs</td>
+<td>PME</td>
+<td>h-bonds</td>
+</tr>
+<tr>
+<td><code>gaff2</code></td>
+<td><code>md_gaff2.mdp</code></td>
+<td>2 fs</td>
+<td>PME</td>
+<td>h-bonds</td>
+</tr>
+<tr>
+<td><code>gromos</code></td>
+<td><code>md_gromos.mdp</code></td>
+<td>2 fs</td>
+<td>PME</td>
+<td>h-bonds</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>mdp.dt</code> default follows this choice automatically (0.020 for Martini,
+0.002 for OPLS/GAFF2/GROMOS). Override it under <code>mdp:</code> if you need a different timestep.
+Ignored if you supply your own MDP via <code>paths.mdp</code>.</p>
+<hr />
+<h2 id="molecule"><code>molecule</code></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">molecule</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">mol1_atoms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">3</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">mol2_atoms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">4</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">6</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p>1-based atom indices (GROMACS/PLUMED convention) of the beads/atoms that
+define the centre of each molecule. These are used in:</p>
+<ul>
+<li><code>WHOLEMOLECULES ENTITY0=... ENTITY1=...</code> — ensures each molecule is kept
+  whole across periodic boundaries</li>
+<li><code>CENTER ATOMS=...</code> — defines the collective variable as the distance
+  between the geometric centres</li>
+</ul>
+<p>For a Martini benzene dimer, all three ring beads of each molecule are
+listed.</p>
+<hr />
+<h2 id="plumed"><code>plumed</code></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">plumed</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">pace</span><span class="p">:</span><span class="w">         </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">height</span><span class="p">:</span><span class="w">       </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">sigma</span><span class="p">:</span><span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">0.05</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">biasfactor</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nt">grid_min</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nt">grid_max</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">3.0</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nt">grid_bin</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="nt">wall_at</span><span class="p">:</span><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">2.0</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="nt">wall_kappa</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">200.0</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="nt">print_stride</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pace</code></td>
+<td>Deposit a Gaussian every N MD steps</td>
+</tr>
+<tr>
+<td><code>height</code></td>
+<td>Initial Gaussian height (kJ/mol)</td>
+</tr>
+<tr>
+<td><code>sigma</code></td>
+<td>Gaussian width (nm)</td>
+</tr>
+<tr>
+<td><code>biasfactor</code></td>
+<td>Well-tempered scaling factor (<span class="arithmatex">\(\gamma\)</span>); higher = more exploration</td>
+</tr>
+<tr>
+<td><code>grid_min/max</code></td>
+<td>CV grid bounds (nm); should span the full distance range of interest</td>
+</tr>
+<tr>
+<td><code>grid_bin</code></td>
+<td>Number of grid bins</td>
+</tr>
+<tr>
+<td><code>wall_at</code></td>
+<td>Upper wall position (nm); keeps sampling efficient</td>
+</tr>
+<tr>
+<td><code>wall_kappa</code></td>
+<td>Upper wall force constant (kJ/mol/nm²)</td>
+</tr>
+<tr>
+<td><code>print_stride</code></td>
+<td>Write COLVAR every N steps</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-the-grid-wall-and-fes-ranges-relate">How the grid, wall, and FES ranges relate</h3>
+<p>Three distance ranges appear in the config, and they must be nested correctly:</p>
+<ul>
+<li><strong>METAD grid</strong> (<code>grid_min</code>, <code>grid_max</code>, <code>grid_bin</code>) — PLUMED stores the
+  accumulated bias on this grid instead of re-summing every hill each step. The
+  CV must <em>never</em> leave the grid: if the distance exceeds <code>grid_max</code>, PLUMED
+  errors out. The grid is therefore the <strong>widest</strong> of the ranges.</li>
+<li><strong>Upper wall</strong> (<code>wall_at</code>, <code>wall_kappa</code>) — a harmonic restraint that pushes
+  the molecules back once they pass <code>wall_at</code>. It is needed because at large
+  separation the PMF is flat: nothing pulls the molecules back, and
+  metadynamics would otherwise keep filling the basin and drive them apart
+  indefinitely (and off the grid). The wall caps the explorable range.</li>
+<li><strong>FES histogram</strong> (<code>fes.min</code>, <code>fes.max</code>) — the range you actually analyse. It
+  must stay <em>inside</em> the wall, because near and beyond the wall the sampling is
+  distorted by the wall potential and the PMF there is contaminated.</li>
+</ul>
+<p>The required ordering is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>grid_min ≤ fes.min  &lt;  fes.max  ≤  wall_at  &lt;  grid_max
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>   0.1      0.2          1.7        2.0        3.0
+</code></pre></div>
+<p><code>metadpmf</code> validates <code>fes.max ≤ wall_at</code> and that <code>pmf.shift_range</code> lies within
+<code>[fes.min, fes.max]</code>.</p>
+<p><strong>Choosing <code>wall_at</code> for your box.</strong> Under the minimum-image convention a
+centre-of-mass distance is only meaningful up to <strong>half the shortest box edge</strong>
+(<code>L/2</code>); beyond that a molecule starts seeing periodic images of its partner.
+Place the wall <em>below</em> <code>L/2</code> with margin, because both the soft-wall
+fluctuations (the CV strays ~0.2–0.3 nm above <code>wall_at</code> before being pushed
+back) and the grid headroom (<code>grid_max &gt; wall_at</code>) must still fit under <code>L/2</code>.
+For a cubic box of edge 5.15 nm (<code>L/2 ≈ 2.58</code>), a wall around 2.2 nm with
+<code>grid_max ≈ 2.5</code> is a safe choice. Below <code>wall_at</code> the wall potential is
+exactly zero, so the FES is energetically clean up to the wall — but expect
+poorer statistics (larger error bars) in the ~0.1 nm just below it as sampling
+density drops.</p>
+<hr />
+<h2 id="mdp"><code>mdp</code></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">mdp</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">nsteps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50000000</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="c1"># dt:   0.020   # default follows forcefield (0.020 martini / 0.002 opls,gaff2,gromos)</span>
+</code></pre></div>
+<p>Applied to the built-in MDP template selected by <code>forcefield</code>. <code>dt</code> defaults
+to the forcefield-appropriate value but can be overridden here. If you supply
+your own MDP via <code>paths.mdp</code>, these keys are ignored.</p>
+<p><code>nsteps</code> is 50M by default: 1 µs for Martini (20 fs) or 100 ns for OPLS (2 fs).</p>
+<hr />
+<h2 id="fes"><code>fes</code></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">fes</span><span class="p">:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">min</span><span class="p">:</span><span class="w">       </span><span class="l l-Scalar l-Scalar-Plain">0.2</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">max</span><span class="p">:</span><span class="w">       </span><span class="l l-Scalar l-Scalar-Plain">1.7</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">bins</span><span class="p">:</span><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">51</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">block_max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+</code></pre></div>
+<p>Parameters for the block FES analysis (<code>metadpmf fes</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>min</code> / <code>max</code></td>
+<td>Histogram range (nm); should match the sampled CV range</td>
+</tr>
+<tr>
+<td><code>bins</code></td>
+<td>Number of histogram bins</td>
+</tr>
+<tr>
+<td><code>block_max</code></td>
+<td>Scan block sizes <code>range(1, block_max, 10)</code>; inspect <code>errors.block</code> to verify convergence</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pmf"><code>pmf</code></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">pmf</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">shift_range</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1.5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1.7</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">xrange</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nt">yrange</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shift_range</code></td>
+<td>Distance range (nm) used to define the PMF zero. Should be a plateau region where the molecules no longer interact.</td>
+</tr>
+<tr>
+<td><code>xrange</code></td>
+<td>x-axis limits for the plot in nm, e.g. <code>[0.3, 2.0]</code>; <code>null</code> = auto</td>
+</tr>
+<tr>
+<td><code>yrange</code></td>
+<td>y-axis limits in kJ/mol, e.g. <code>[-10, 5]</code>; <code>null</code> = auto</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="cv2"><code>cv2</code></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">cv2</span><span class="p">:</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">costheta</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">bias</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">sigma</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">fold</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="nt">label</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;cos</span><span class="nv"> </span><span class="s">θ&quot;</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="nt">min</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">-1.0</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="nt">max</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="nt">bins</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">51</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">  </span><span class="c1"># mol1_plane: [1, 2, 3]</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">  </span><span class="c1"># mol2_plane: [4, 5, 6]</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">  </span><span class="nt">plumed_analysis</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plumed_analysis_2d.dat</span>
+</code></pre></div>
+<p>A second collective variable, used to build a 2D free-energy surface. The
+metadynamics bias <strong>always</strong> acts on the centre-of-mass distance; <code>cv2</code> adds an
+orientational coordinate that is either projected onto or also biased.</p>
+<h3 id="three-modes">Three modes</h3>
+<p><code>enabled</code> and <code>bias</code> together select the mode:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th><code>enabled</code></th>
+<th><code>bias</code></th>
+<th>Bias acts on</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong></td>
+<td><code>false</code></td>
+<td>—</td>
+<td>distance</td>
+<td>1D PMF</td>
+</tr>
+<tr>
+<td><strong>B</strong> — project</td>
+<td><code>true</code></td>
+<td><code>false</code></td>
+<td>distance</td>
+<td>2D FES (cv2 unbiased)</td>
+</tr>
+<tr>
+<td><strong>C</strong> — bias both</td>
+<td><code>true</code></td>
+<td><code>true</code></td>
+<td>distance + cv2</td>
+<td>2D FES</td>
+</tr>
+</tbody>
+</table>
+<p>In Mode B the production run is identical to Mode A; cv2 is computed only during
+reweighting. In Mode C cv2 is biased by METAD, so it appears in both the
+production and analysis PLUMED inputs.</p>
+<h3 id="keys">Keys</h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>Turn the second CV on</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td><code>costheta</code> = built-in generator (cosine of the angle between the two ring-plane normals, built from <code>mol1_plane</code>/<code>mol2_plane</code>); <code>custom</code> = supply your own PLUMED via <code>plumed_analysis</code></td>
+</tr>
+<tr>
+<td><code>bias</code></td>
+<td><code>false</code> = project (Mode B); <code>true</code> = also bias cv2 (Mode C)</td>
+</tr>
+<tr>
+<td><code>sigma</code></td>
+<td>metadynamics Gaussian width on cv2 (only used when <code>bias: true</code>)</td>
+</tr>
+<tr>
+<td><code>fold</code></td>
+<td><code>none</code>, <code>abs</code> (→ |cosθ|), or <code>sq</code> (→ cos²θ); see below</td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td>y-axis label in the 2D plot</td>
+</tr>
+<tr>
+<td><code>min</code> / <code>max</code></td>
+<td>cv2 histogram range; also the metad grid bounds on cv2 when biased</td>
+</tr>
+<tr>
+<td><code>bins</code></td>
+<td>number of cv2 histogram (and grid) bins</td>
+</tr>
+<tr>
+<td><code>mol1_plane</code> / <code>mol2_plane</code></td>
+<td>3 atoms per molecule defining each ring plane (for <code>type: costheta</code>). Default to <code>molecule.mol*_atoms</code> when those have exactly 3 atoms</td>
+</tr>
+<tr>
+<td><code>plumed_analysis</code></td>
+<td>for <code>type: custom</code> only: your PLUMED file that defines cv2 and prints <code>dist, cv2, metad.bias</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="cos-sign-degeneracy-and-fold">cosθ sign degeneracy and <code>fold</code></h3>
+<p>For two stacked rings, <code>cosθ = +1</code> and <code>cosθ = -1</code> both mean "planes parallel":
+the sign just reflects which face of each ring the normal points from. For a
+<strong>planar</strong> molecule the two faces are equivalent (the molecular plane is a mirror,
+true even for in-plane-asymmetric molecules like phenol), so the two halves of
+the cv2 axis are physically redundant.</p>
+<ul>
+<li><code>fold: none</code> (default) keeps the full <code>[-1, 1]</code> range. For projection (Mode B)
+  this is useful: a converged FES should be symmetric about 0, a free
+  convergence check.</li>
+<li><code>fold: abs</code> or <code>sq</code> collapses the redundant half. This is mainly worth it when
+  <strong>biasing</strong> a planar molecule (Mode C), where it avoids filling two equivalent
+  regions. Set <code>min: 0.0</code> to match the folded range. Do <strong>not</strong> fold a molecule
+  whose two faces differ (non-planar, or different groups above/below the ring) —
+  there <code>+1</code> and <code>-1</code> are genuinely distinct states.</li>
+</ul>
+<hr />
+<h2 id="paths"><code>paths</code></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">paths</span><span class="p">:</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">gro</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">start.gro</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">top</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">system.top</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">mdp</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="nt">traj</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metad.xtc</span>
+</code></pre></div>
+<p>All paths are relative to the config file location.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gro</code></td>
+<td>Equilibrated starting structure</td>
+</tr>
+<tr>
+<td><code>top</code></td>
+<td>GROMACS topology</td>
+</tr>
+<tr>
+<td><code>mdp</code></td>
+<td>Custom MDP file; <code>null</code> = use built-in template selected by <code>forcefield</code></td>
+</tr>
+<tr>
+<td><code>traj</code></td>
+<td>Trajectory filename produced by mdrun (default <code>metad.xtc</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="backend-backends"><code>backend</code> / <code>backends</code></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nt">backends</span><span class="p">:</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="nt">local</span><span class="p">:</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">gmx</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">gmx</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">plumed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plumed</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="nt">slurm</span><span class="p">:</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="nt">gmx</span><span class="p">:</span><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">gmx_mpi</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="nt">plumed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plumed</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="nt">mdrun</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;srun</span><span class="nv"> </span><span class="s">gmx_mpi</span><span class="nv"> </span><span class="s">mdrun&quot;</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="nt">grompp</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;srun</span><span class="nv"> </span><span class="s">gmx_mpi</span><span class="nv"> </span><span class="s">grompp&quot;</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="nt">header</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">slurm_header.sh</span>
+</code></pre></div>
+<p>Set <code>backend: slurm</code> on HPC clusters. The <code>header</code> key must point to a file
+containing your <code>#SBATCH</code> directives and <code>module load</code> commands.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
