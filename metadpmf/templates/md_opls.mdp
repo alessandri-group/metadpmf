@@ -22,10 +22,10 @@ lincs_order              = 4                 ; default
 nstxout                  = 0
 nstvout                  = 0
 nstfout                  = 0
-nstlog                   = 5000
-nstenergy                = 5000
-nstxout-compressed       = 5000
-compressed-x-precision   = 1000
+nstlog                   = 10000
+nstenergy                = 10000
+nstxout-compressed       = 10000             ; xtc, 20 ps (if dt = 2 fs)
+compressed-x-precision   = 1000              ; default is 1000
 
 ; Some specific settings
 pbc                      = xyz               ; default
