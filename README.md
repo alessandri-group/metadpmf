@@ -10,12 +10,12 @@
 
 ---
 
-**metadpmf** is a Python CLI package for running and analysing well-tempered metadynamics simulations in GROMACS + PLUMED to compute potentials of mean force (PMFs) along the centre-of-mass distance between two molecules. It supports both coarse-grained Martini and atomistic OPLS-AA / GAFF2 systems, optional projection onto a second collective variable for a 2D FES, and generates ready-to-run shell scripts rather than executing simulations directly.
+**metadpmf** is a Python CLI package for running and analysing well-tempered metadynamics simulations in GROMACS + PLUMED to compute potentials of mean force (PMFs) along the centre-of-mass distance between two molecules. It supports both coarse-grained Martini and atomistic OPLS-AA / GAFF2 / GROMOS systems, optional projection onto a second collective variable for a 2D FES, and generates ready-to-run shell scripts rather than executing simulations directly.
 
 ## Features
 
 - Single `config.yaml` per simulation
-- Built-in production `mdp` templates for Martini CG, OPLS-AA, and GAFF2 (selected via `forcefield`)
+- Built-in production `mdp` templates for Martini CG, OPLS-AA, GAFF2, and GROMOS (selected via `forcefield`)
 - 1D PMF, or 2D FES along a second collective variable — either projected (unbiased) or biased; ring-orientation cosθ generated automatically
 
 ## Installation

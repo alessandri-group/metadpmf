@@ -182,6 +182,10 @@ def test_dt_default_gaff2():
     assert _apply_defaults({"forcefield": "gaff2"})["mdp"]["dt"] == 0.002
 
 
+def test_dt_default_gromos():
+    assert _apply_defaults({"forcefield": "gromos"})["mdp"]["dt"] == 0.002
+
+
 def test_dt_unset_when_forcefield_missing():
     """No forcefield → no dt default (validation will reject the config)."""
     assert "dt" not in _apply_defaults({})["mdp"]
@@ -207,6 +211,12 @@ def test_render_mdp_opls_pme():
 
 def test_render_mdp_gaff2_pme():
     text = render_mdp(_cfg(forcefield="gaff2"))
+    assert "coulombtype              = PME" in text
+    assert "dt                       = 0.002" in text
+
+
+def test_render_mdp_gromos_pme():
+    text = render_mdp(_cfg(forcefield="gromos"))
     assert "coulombtype              = PME" in text
     assert "dt                       = 0.002" in text
 

@@ -11,7 +11,8 @@ temperature: 298.15
 #   martini : Martini CG  (dt 20 fs, reaction-field electrostatics)
 #   opls    : OPLS-AA      (dt  2 fs, PME, h-bond constraints)
 #   gaff2   : GAFF2        (dt  2 fs, PME, h-bond constraints)
-# No default: you must set this to 'martini', 'opls', or 'gaff2'.
+#   gromos  : GROMOS       (dt  2 fs, PME, h-bond constraints)
+# No default: you must set this to 'martini', 'opls', 'gaff2', or 'gromos'.
 # The dt default follows this choice automatically; override under mdp: if needed.
 # -------------------------------------------------------------------
 forcefield: martini
@@ -45,7 +46,7 @@ plumed:
 # -------------------------------------------------------------------
 mdp:
   nsteps:  50000000   # total simulation steps (50M steps = 1 µs Martini / 100 ns OPLS)
-  # dt:    0.020      # timestep (ps); default follows forcefield (0.020 martini / 0.002 opls,gaff2)
+  # dt:    0.020      # timestep (ps); default follows forcefield (0.020 martini / 0.002 opls,gaff2,gromos)
 
 # -------------------------------------------------------------------
 # Block FES analysis parameters (metadpmf fes)
