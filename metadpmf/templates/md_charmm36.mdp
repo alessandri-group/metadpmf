@@ -10,6 +10,7 @@
 ; References:
 ; - R.B. Best, et al., J. Chem. Theory Comput. 2012, DOI: 10.1021/ct300400x
 ; - J. Huang & A.D. MacKerell, J. Comput. Chem. 2013, DOI: 10.1002/jcc.23354
+; - https://manual.gromacs.org/current/user-guide/force-fields.html#charmm
 
 title                    = metadpmf metadynamics
 
