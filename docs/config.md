@@ -157,7 +157,7 @@ fes:
   min:       0.2
   max:       1.7
   bins:      51
-  block_max: 1000
+  block_max: null
 ```
 
 Parameters for the block FES analysis (`metadpmf fes`).
@@ -166,7 +166,40 @@ Parameters for the block FES analysis (`metadpmf fes`).
 |---|---|
 | `min` / `max` | Histogram range (nm); should match the sampled CV range |
 | `bins` | Number of histogram bins |
-| `block_max` | Scan block sizes `range(1, block_max, 10)`; inspect `errors.block` to verify convergence |
+| `block_max` | Upper block size (in **frames**) for the error-convergence scan. `null` (default) = adaptive, derived from the trajectory length; set an integer to pin it. Inspect `errors.block` to choose your error bar. |
+
+### How the block-error scan works (and why `block_max` is adaptive)
+
+`metadpmf fes` estimates the statistical error on the FES by **block averaging**:
+it splits the reweighted frames into consecutive blocks of `block_size` frames,
+builds a weighted histogram per block, and takes the mean ± standard error
+across blocks. It does this for a *range* of block sizes and writes
+`(block_size, mean_error)` to `errors.block`.
+
+You scan because a block-average error is only trustworthy once each block is
+**longer than the CV's autocorrelation time**: on `errors.block` the error rises
+with block size and then **plateaus** — that plateau is your real error bar. Two
+limits bound the useful range, and both scale with trajectory length:
+
+- the largest block must still leave **enough blocks** to average over (too few
+  and the spread across blocks is itself noise);
+- you only need enough sampled block sizes to *see* the plateau — more just
+  wastes compute.
+
+So `block_max` is measured in **frames** (saved trajectory frames, i.e.
+`nstxout-compressed × dt` of simulation time each — *not* MD steps or ps). Rather
+than hard-code it, the default (`null`) derives the scan from the number of
+frames actually loaded:
+
+- `block_max ≈ nframes / 25` → the largest block leaves **~25 blocks**;
+- the scan steps so it samples **~100 block sizes** regardless of length.
+
+Because it reads the *actual* frame count at analysis time (not the config
+`nsteps`), it self-scales to any run — a 100 ns atomistic run and a 10 µs Martini
+run both get a sensible scan with no tuning, and it stays correct even if the run
+crashed, was extended, or used a custom mdp. Set `block_max` to an integer only
+if you want to pin the ceiling (e.g. to reproduce an older analysis); an explicit
+value is still capped at the frame count and still sampled at ~100 points.
 
 ---
 

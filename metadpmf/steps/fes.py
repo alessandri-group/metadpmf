@@ -34,6 +34,33 @@ import numpy as np
 from metadpmf.config import kbt as get_kbt
 
 
+def _auto_block_sizes(nframes, block_max, min_blocks=25, n_points=100):
+    """Return the list of block sizes to scan for the convergence analysis.
+
+    A block-average error is only meaningful once each block is longer than the
+    data's autocorrelation time, and only stable while there are still enough
+    blocks to average over. Both limits scale with trajectory length, so when
+    ``block_max`` is None (the default) we derive the scan from the number of
+    frames actually loaded:
+
+      * largest block leaves ~min_blocks blocks -> block_max = nframes // min_blocks
+      * scan samples ~n_points block sizes      -> step     = block_max // n_points
+
+    This keeps ~25 blocks at the top of the scan and ~100 points along the
+    error-vs-block-size curve at *any* trajectory length, so the user never has
+    to tune it by hand. An explicit ``block_max`` (set in config.yaml) overrides
+    the first rule but still gets the ~n_points resolution; it is capped at
+    ``nframes`` because a block cannot be longer than the data. Basing this on
+    the loaded frame count (not the config ``nsteps``) makes it robust to runs
+    that crashed, were extended, or used a custom mdp.
+    """
+    if block_max is None:
+        block_max = nframes // min_blocks
+    block_max = max(2, min(block_max, nframes))
+    step = max(1, block_max // n_points)
+    return list(range(1, block_max, step))
+
+
 def run(cfg: dict, block_size: int = None, marginal: bool = False) -> None:
     base      = Path(cfg["_dir"])
     two_d     = cfg["cv2"]["enabled"]
@@ -96,11 +123,12 @@ def _run_1d(anal_dir, colvar, KBT, gmin, gmax, nbin, bmax_bs, block_size,
         print(f"Written: {dname}/{fes_name}  (block size {block_size})")
         return
 
-    block_sizes = list(range(1, bmax_bs, 10))
+    block_sizes = _auto_block_sizes(len(distances), bmax_bs)
+    step = block_sizes[1] - block_sizes[0] if len(block_sizes) > 1 else 1
     errors = []
     last_finite_fes = None
 
-    print(f"Scanning {len(block_sizes)} block sizes (1 to {bmax_bs - 1}, step 10) ...")
+    print(f"Scanning {len(block_sizes)} block sizes (1 to {block_sizes[-1]}, step {step}) ...")
 
     for bs in block_sizes:
         fes_data = _block_fes_1d(distances, weights, gmin, gmax, nbin, KBT, bs)
@@ -151,11 +179,12 @@ def _run_2d(cfg, anal_dir, colvar, KBT, gmin1, gmax1, nbin1, bmax_bs, block_size
         print(f"Written: analysis/fes.dat  (block size {block_size})")
         return
 
-    block_sizes = list(range(1, bmax_bs, 10))
+    block_sizes = _auto_block_sizes(len(distances), bmax_bs)
+    step = block_sizes[1] - block_sizes[0] if len(block_sizes) > 1 else 1
     errors = []
     last_fes = None
 
-    print(f"Scanning {len(block_sizes)} block sizes (1 to {bmax_bs - 1}, step 10) ...")
+    print(f"Scanning {len(block_sizes)} block sizes (1 to {block_sizes[-1]}, step {step}) ...")
 
     for bs in block_sizes:
         fes_data = _block_fes_2d(distances, cv2_vals, weights,

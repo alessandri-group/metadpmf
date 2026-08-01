@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from metadpmf.steps.fes import (
+    _auto_block_sizes,
     _block_fes_1d,
     _block_fes_2d,
     _load_colvar_1d,
@@ -38,6 +39,40 @@ def _write_colvar_2d(path: Path, rows):
         f.write("#! FIELDS time dist costheta metad.bias\n")
         for t, d, s, b in rows:
             f.write(f" {t} {d} {s} {b}\n")
+
+
+# ---------------------------------------------------------------------------
+# _auto_block_sizes — adaptive block-error scan
+# ---------------------------------------------------------------------------
+
+def test_auto_block_sizes_adaptive_targets_25_blocks():
+    """With block_max=None the largest block should leave ~25 blocks, at any length."""
+    for nframes in (5000, 50000, 100000, 500000):   # 100 ns atomistic ... 10 us Martini
+        sizes = _auto_block_sizes(nframes, None)
+        n_at_top = nframes / sizes[-1]
+        assert 20 <= n_at_top <= 30
+        assert sizes[0] == 1                          # scan always starts at block size 1
+
+
+def test_auto_block_sizes_about_100_points():
+    """The scan samples ~100 block sizes regardless of trajectory length."""
+    for nframes in (5000, 100000, 500000):
+        assert 90 <= len(_auto_block_sizes(nframes, None)) <= 100
+
+
+def test_auto_block_sizes_backward_compatible_when_pinned():
+    """An explicit block_max=1000 reproduces the historical range(1, 1000, 10)."""
+    assert _auto_block_sizes(100000, 1000) == list(range(1, 1000, 10))
+
+
+def test_auto_block_sizes_capped_at_frame_count():
+    """block_max can never exceed the frame count — a block can't be longer than the data."""
+    assert _auto_block_sizes(500, 1000)[-1] < 500     # pinned above the data length
+
+
+def test_auto_block_sizes_tiny_data_does_not_crash():
+    """A degenerate short trajectory still returns a non-empty, valid scan."""
+    assert _auto_block_sizes(10, None) == [1]
 
 
 # ---------------------------------------------------------------------------

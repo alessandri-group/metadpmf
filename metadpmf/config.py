@@ -56,7 +56,7 @@ def _apply_defaults(cfg: dict) -> dict:
     cfg["fes"].setdefault("min", 0.2)
     cfg["fes"].setdefault("max", 1.7)
     cfg["fes"].setdefault("bins", 51)
-    cfg["fes"].setdefault("block_max", 1000)
+    cfg["fes"].setdefault("block_max", None)   # None = adaptive (from trajectory length)
 
     cfg.setdefault("pmf", {})
     cfg["pmf"].setdefault("shift_range", [1.5, 1.7])

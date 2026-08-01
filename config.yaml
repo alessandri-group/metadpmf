@@ -56,7 +56,9 @@ fes:
   min:       0.2    # grid lower bound for FES histogram (nm)
   max:       1.7    # grid upper bound for FES histogram (nm)
   bins:      51     # number of histogram bins
-  block_max: 1000   # scan block sizes range(1, block_max, 10)
+  block_max: null   # block-error scan ceiling (frames). null = adaptive: derived
+                    # from the trajectory length so the largest block leaves ~25
+                    # blocks (~100 points scanned). Set an integer only to pin it.
 
 # -------------------------------------------------------------------
 # PMF correction (metadpmf pmf)

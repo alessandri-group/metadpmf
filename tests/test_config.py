@@ -26,7 +26,7 @@ def test_fes_defaults():
     assert cfg["fes"]["min"] == 0.2
     assert cfg["fes"]["max"] == 1.7
     assert cfg["fes"]["bins"] == 51
-    assert cfg["fes"]["block_max"] == 1000
+    assert cfg["fes"]["block_max"] is None   # None = adaptive from trajectory length
 
 
 def test_pmf_defaults():
