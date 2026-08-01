@@ -186,6 +186,10 @@ def test_dt_default_gromos():
     assert _apply_defaults({"forcefield": "gromos"})["mdp"]["dt"] == 0.002
 
 
+def test_dt_default_charmm36():
+    assert _apply_defaults({"forcefield": "charmm36"})["mdp"]["dt"] == 0.002
+
+
 def test_dt_unset_when_forcefield_missing():
     """No forcefield → no dt default (validation will reject the config)."""
     assert "dt" not in _apply_defaults({})["mdp"]
@@ -219,6 +223,16 @@ def test_render_mdp_gromos_pme():
     text = render_mdp(_cfg(forcefield="gromos"))
     assert "coulombtype              = PME" in text
     assert "dt                       = 0.002" in text
+
+
+def test_render_mdp_charmm36_pme_force_switch():
+    text = render_mdp(_cfg(forcefield="charmm36"))
+    assert "coulombtype              = PME" in text
+    assert "vdw-modifier             = Force-switch" in text
+    assert "dt                       = 0.002" in text
+    # every metadpmf token must be substituted — no stray placeholders left
+    for tok in ("TIMESTEP", "REFT", "REFP", "TCOUPLING", "PCOUPLING", "GENVEL", "COULOMB", "NSTEPS", "TEMP"):
+        assert tok not in text
 
 
 def test_render_mdp_substitutes_temperature():

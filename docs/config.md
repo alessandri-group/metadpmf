@@ -23,12 +23,12 @@ Simulation temperature in Kelvin. Used in:
 ## `forcefield`
 
 ```yaml
-forcefield: martini   # 'martini', 'opls', 'gaff2', or 'gromos' — REQUIRED, no default
+forcefield: martini   # 'martini', 'opls', 'gaff2', 'gromos', or 'charmm36' — REQUIRED, no default
 ```
 
 Required — there is no default, so you must set it to `martini`, `opls`,
-`gaff2`, or `gromos` (any other value is rejected). Selects the built-in
-production MDP template written by `metadpmf run`:
+`gaff2`, `gromos`, or `charmm36` (any other value is rejected). Selects the
+built-in production MDP template written by `metadpmf run`:
 
 | Value | Template | Timestep | Electrostatics | Constraints |
 |---|---|---|---|---|
@@ -36,9 +36,10 @@ production MDP template written by `metadpmf run`:
 | `opls` | `md_opls.mdp` | 2 fs | PME | h-bonds |
 | `gaff2` | `md_gaff2.mdp` | 2 fs | PME | h-bonds |
 | `gromos` | `md_gromos.mdp` | 2 fs | PME | h-bonds |
+| `charmm36` | `md_charmm36.mdp` | 2 fs | PME (force-switch VDW) | h-bonds |
 
 The `mdp.dt` default follows this choice automatically (0.020 for Martini,
-0.002 for OPLS/GAFF2/GROMOS). Override it under `mdp:` if you need a different timestep.
+0.002 for OPLS/GAFF2/GROMOS/CHARMM36). Override it under `mdp:` if you need a different timestep.
 Ignored if you supply your own MDP via `paths.mdp`.
 
 ---
@@ -138,7 +139,7 @@ density drops.
 ```yaml
 mdp:
   nsteps: 50000000
-  # dt:   0.020   # default follows forcefield (0.020 martini / 0.002 opls,gaff2,gromos)
+  # dt:   0.020   # default follows forcefield (0.020 martini / 0.002 opls,gaff2,gromos,charmm36)
 ```
 
 Applied to the built-in MDP template selected by `forcefield`. `dt` defaults
