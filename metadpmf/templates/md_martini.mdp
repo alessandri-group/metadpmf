@@ -5,8 +5,8 @@
 
 title                    = metadpmf metadynamics
 
-integrator               = sd
-ld_seed                  = -1
+; Integrator
+integrator               = md
 dt                       = DT
 nsteps                   = NSTEPS
 nstcomm                  = 100
