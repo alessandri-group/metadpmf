@@ -83,7 +83,7 @@ def _write_local(base, traj, cmds, dir_name):
         f"cp HILLS {dir_name}/",
         "",
         f"cd {dir_name}",
-        f"{plumed} driver --plumed plumed_analysis.dat --mf_xtc ../{traj}",
+        f"{plumed} --no-mpi driver --plumed plumed_analysis.dat --mf_xtc ../{traj}",
     ]
     script = base / "reweight.sh"
     script.write_text("\n".join(lines) + "\n")
@@ -111,7 +111,7 @@ def _write_slurm(cfg, base, traj, cmds, dir_name):
         f"cp HILLS {dir_name}/",
         "",
         f"cd {dir_name}",
-        f"{plumed} driver --plumed plumed_analysis.dat --mf_xtc ../{traj}",
+        f"{plumed} --no-mpi driver --plumed plumed_analysis.dat --mf_xtc ../{traj}",
     ]
     script = base / "reweight.sh"
     script.write_text("\n".join(lines) + "\n")
