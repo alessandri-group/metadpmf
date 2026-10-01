@@ -153,10 +153,10 @@ def _run_2d(cfg, temperature, anal_dir, fes_path):
     print(f"2D FES shifted by {shift:.4f} kJ/mol")
 
     _write_2d(anal_dir / "fes_2d_corr.dat", FES, cv1_edges, cv2_edges, nbin1, nbin2)
-    print("Written: analysis/fes_2d_corr.dat")
+    print(f"Written: {anal_dir.name}/fes_2d_corr.dat")
 
     _plot_2d(FES, cv1_edges, cv2_edges, cv2_cfg, anal_dir / "pmf_2d.pdf", cfg["pmf"])
-    print("Written: analysis/pmf_2d.pdf")
+    print(f"Written: {anal_dir.name}/pmf_2d.pdf")
 
 
 # ---------------------------------------------------------------------------

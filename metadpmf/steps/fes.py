@@ -161,13 +161,13 @@ def _run_2d(cfg, anal_dir, colvar, KBT, gmin1, gmax1, nbin1, bmax_bs, block_size
     gmax2   = cv2_cfg["max"]
     nbin2   = cv2_cfg["bins"]
 
-    print("Reading analysis/COLVAR (2D mode) ...")
+    print(f"Reading {anal_dir.name}/COLVAR (2D mode) ...")
     distances, cv2_vals, weights = _load_colvar_2d(colvar, KBT)
     print(f"  {len(distances)} frames loaded")
 
     dcw_path = anal_dir / "dist.cv2.weight"
     np.savetxt(dcw_path, np.column_stack([distances, cv2_vals, weights]), fmt="%.9f")
-    print("Written: analysis/dist.cv2.weight")
+    print(f"Written: {anal_dir.name}/dist.cv2.weight")
 
     blocks_dir = anal_dir / "blocks"
     blocks_dir.mkdir(exist_ok=True)
@@ -176,7 +176,7 @@ def _run_2d(cfg, anal_dir, colvar, KBT, gmin1, gmax1, nbin1, bmax_bs, block_size
         fes_data = _block_fes_2d(distances, cv2_vals, weights,
                                   gmin1, gmax1, nbin1, gmin2, gmax2, nbin2, KBT, block_size)
         _write_fes_2d(anal_dir / "fes.dat", fes_data, nbin1)
-        print(f"Written: analysis/fes.dat  (block size {block_size})")
+        print(f"Written: {anal_dir.name}/fes.dat  (block size {block_size})")
         return
 
     block_sizes = _auto_block_sizes(len(distances), bmax_bs)
@@ -197,14 +197,14 @@ def _run_2d(cfg, anal_dir, colvar, KBT, gmin1, gmax1, nbin1, bmax_bs, block_size
             last_fes = fes_data
 
     np.savetxt(anal_dir / "errors.block", errors, fmt="%.9f")
-    print("Written: analysis/errors.block")
-    print(f"Written: analysis/blocks/  ({len(block_sizes)} files)")
+    print(f"Written: {anal_dir.name}/errors.block")
+    print(f"Written: {anal_dir.name}/blocks/  ({len(block_sizes)} files)")
 
     if last_fes is not None:
         _write_fes_2d(anal_dir / "fes.dat", last_fes, nbin1)
-        print(f"Written: analysis/fes.dat  (block size {block_sizes[-1]})")
+        print(f"Written: {anal_dir.name}/fes.dat  (block size {block_sizes[-1]})")
     else:
-        print("Warning: no finite FES bins found; analysis/fes.dat not written.")
+        print(f"Warning: no finite FES bins found; {anal_dir.name}/fes.dat not written.")
 
 
 # ---------------------------------------------------------------------------
